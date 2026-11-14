@@ -624,22 +624,22 @@ form.signup .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items
   $("prev").onclick = () => { week = addDays(week, -7); openForm = null; openClimb = null; nudgeKey = null; render(); };
   $("next").onclick = () => { week = addDays(week, 7); openForm = null; openClimb = null; nudgeKey = null; render(); };
   $("today").onclick = () => { week = mondayOf(new Date()); openForm = null; openClimb = null; nudgeKey = null; render(); };
-  // Téléphone : balayer la liste des jours vers la gauche ou la droite change de semaine.
+  // Téléphone : balayer la page vers la gauche ou la droite change de semaine.
   let doigt = null;
-  $("days").addEventListener("touchstart", e => {
+  document.addEventListener("touchstart", e => {
     const t = e.touches[0];
     // Les bords de l'écran servent au geste « retour » du téléphone ; les champs de saisie gardent leurs gestes.
     if (e.touches.length !== 1 || t.clientX < 30 || t.clientX > window.innerWidth - 30 || e.target.closest("input, textarea, form")) { doigt = null; return; }
     doigt = { x: t.clientX, y: t.clientY, t: Date.now() };
   }, { passive: true });
-  $("days").addEventListener("touchend", e => {
+  document.addEventListener("touchend", e => {
     if (!doigt) return;
     const t = e.changedTouches[0], dx = t.clientX - doigt.x, dy = t.clientY - doigt.y, duree = Date.now() - doigt.t;
     doigt = null;
-    if (duree > 700 || Math.abs(dx) < 70 || Math.abs(dx) < 2 * Math.abs(dy)) return;
+    if (duree > 1000 || Math.abs(dx) < 50 || Math.abs(dx) < 1.5 * Math.abs(dy)) return;
     $(dx < 0 ? "next" : "prev").click();
   }, { passive: true });
-  $("days").addEventListener("touchcancel", () => { doigt = null; }, { passive: true });
+  document.addEventListener("touchcancel", () => { doigt = null; }, { passive: true });
   // Flèches gauche/droite du clavier : semaine précédente/suivante (sauf pendant une saisie).
   document.addEventListener("keydown", e => {
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
