@@ -1,7 +1,6 @@
 {
   "name": "Planning des référents 19Escalade",
   "short_name": "Planning",
-  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "theme_color": "#184848",

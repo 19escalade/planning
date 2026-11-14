@@ -3,8 +3,9 @@
 Page statique hébergée sur GitHub Pages. Les données restent dans le Google Sheet du club,
 lues et écrites par l'application Apps Script (projet `~/planning-19escalade`, déployé avec clasp).
 
-- `index.html` : vue référents (inscription aux créneaux).
-- `index.html?vue=adherents` : vue adhérents (lecture + « Je veux grimper ! »).
+- `index.html` : vue adhérents (lecture + « Je veux grimper ! »), par défaut. `?vue=adherents` reste accepté pour les anciens liens.
+- `index.html?vue=referents` : vue référents (inscription aux créneaux).
+- `manifest.webmanifest` n'a pas de `start_url` : un raccourci d'écran d'accueil rouvre l'adresse ajoutée (vue adhérents ou référents).
 - `API_URL` (en haut du script de `index.html`) : adresse `/exec` du déploiement Apps Script.
   - lecture : `GET API_URL?api=lire` → `{ inscriptions, envies }`
   - écritures : `POST API_URL` en `text/plain` avec `{"action": "ajouter|retirer|grimper|retirerGrimpeur", "data": ...}`
