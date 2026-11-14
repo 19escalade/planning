@@ -624,6 +624,16 @@ form.signup .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items
   $("prev").onclick = () => { week = addDays(week, -7); openForm = null; openClimb = null; nudgeKey = null; render(); };
   $("next").onclick = () => { week = addDays(week, 7); openForm = null; openClimb = null; nudgeKey = null; render(); };
   $("today").onclick = () => { week = mondayOf(new Date()); openForm = null; openClimb = null; nudgeKey = null; render(); };
+  // Flèches gauche/droite du clavier : semaine précédente/suivante (sauf pendant une saisie).
+  document.addEventListener("keydown", e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if (e.key === "ArrowLeft") $("prev").click();
+    else if (e.key === "ArrowRight") $("next").click();
+    else return;
+    e.preventDefault();
+  });
 
   render();
 
