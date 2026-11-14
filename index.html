@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning des référents du 19Escalade</title>
+<meta name="theme-color" content="#184848">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Planning">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icone-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icone-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Mise en page : une colonne de jours ; chaque créneau est une carte avec une corde qui montre les heures assurées */
+:root {
+  --bg: #edf2f3;          /* gris-bleu du logo, très clair */
+  --surface: #ffffff;
+  --ink: #14302f;
+  --muted: #546b6c;
+  --line: #d2dfe1;
+  --accent: #184848;      /* pétrole du logo */
+  --accent-soft: #dce8ea;
+  --ok: #23804f;
+  --warn: #b26a00;
+  --bad: #d42020;          /* rouge des croix du logo */
+  --bad-soft: #f8e1dc;
+  --warn-soft: #f7ead2;
+  --ok-soft: #dcefe3;
+  --rope1: #1f8a4c; --rope2: #9fd356; --rope3: #f2fbe6;  /* corde verte bicolore */
+  --slack: #a0b8c0;
+  --hero: #184848; --hero-ink: #ffffff; --hero-muted: #c6d8dc; --brand-light: #a0b8c0; --brand-red: #e01818;
+  --dots: rgba(24,72,72,.11);
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1819; --surface: #162324; --ink: #e6efef; --muted: #98aeb0; --line: #2a3b3d;
+    --accent: #a0c4cc; --accent-soft: #1d3638; --ok: #5cc98b; --warn: #e5a54a; --bad: #f07a66;
+    --bad-soft: #3d221e; --warn-soft: #3a2f1c; --ok-soft: #1b3326; --slack: #4a565c; --hero: #123839; --dots: rgba(255,255,255,.06); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1819; --surface: #162324; --ink: #e6efef; --muted: #98aeb0; --line: #2a3b3d;
+  --accent: #a0c4cc; --accent-soft: #1d3638; --ok: #5cc98b; --warn: #e5a54a; --bad: #f07a66;
+  --bad-soft: #3d221e; --warn-soft: #3a2f1c; --ok-soft: #1b3326; --slack: #4a565c; --hero: #123839; --dots: rgba(255,255,255,.06); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+  /* panneau de mur : grille de trous d'inserts */
+  background-image: radial-gradient(circle, var(--dots) 1.6px, transparent 2.2px);
+  background-size: 26px 26px;
+}
+.hero { position: relative; background: var(--hero); color: var(--hero-ink); border-radius: 16px; padding: 18px 18px 16px 112px; overflow: hidden; min-height: 120px; border-bottom: 4px solid var(--brand-red); }
+/* Logo du club dans une pastille claire, pour que le contour pétrole ressorte sur le bandeau. */
+.hero .logo { position: absolute; left: 14px; top: 16px; width: 84px; height: 84px; padding: 4px; border-radius: 50%; background: #f3f7f8; box-shadow: 0 0 0 3px var(--brand-light); }
+.hero h1 .club { color: #ff6b5e; }
+@media (max-width: 480px) { .hero { padding-left: 18px; padding-top: 86px; } .hero .logo { width: 62px; height: 62px; top: 14px; left: 16px; } }
+.hero .lede { color: var(--hero-muted); }
+.hold { position: absolute; border-radius: 46% 54% 40% 60% / 55% 45% 55% 45%; }
+.hold::after { content: ""; position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%; background: rgba(0,0,0,.45); }
+.status { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; line-height: 1.15; max-width: 9.5rem; }
+.status small { font-size: .78rem; font-weight: 600; text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.status.ok { color: var(--ok); } .status.bad { color: var(--bad); }
+.ropewrap { position: relative; height: 22px; }
+.slack { position: absolute; left: 0; right: 0; top: 9px; height: 4px; background-image: radial-gradient(circle, var(--slack) 1.6px, transparent 2px); background-size: 8px 4px; }
+.rope { position: absolute; top: 5px; height: 12px; border-radius: 6px;
+  background: repeating-linear-gradient(-60deg, var(--rope1) 0 5px, var(--rope2) 5px 8px, var(--rope1) 8px 11px, var(--rope3) 11px 12.5px);
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.18), inset 0 2px 0 rgba(255,255,255,.25); }
+.ico { flex: none; }
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; text-wrap: balance; letter-spacing: .01em; }
+h1 { font-size: 2.1rem; line-height: 1.05; text-transform: uppercase; }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+.top { display: flex; flex-direction: column; gap: 14px; }
+.toplinks { display: flex; justify-content: flex-end; }
+a.nav { --halo: var(--surface); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+a.nav:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.weekbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.weekbar .label { font-family: var(--display); font-size: 1.35rem; font-weight: 600; flex: 1; min-width: 0; }
+button { font: inherit; cursor: pointer; }
+.nav { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 6px 12px; font-weight: 600; }
+.nav:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.want { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.climb { --d: var(--surface); --tape: var(--surface); display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; border: 2px solid var(--accent); background: var(--surface); color: var(--accent); border-radius: 999px; padding: 6px 16px; font-weight: 700; font-family: var(--display); font-size: 1.05rem; letter-spacing: .02em; }
+.climb[aria-pressed="true"] { --d: var(--accent); --tape: var(--accent); background: var(--accent); color: var(--surface); }
+.count { display: inline-flex; align-items: center; gap: 4px; --d: var(--surface); --tape: var(--surface); font-size: .9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.count strong { color: var(--accent); font-size: 1.05rem; }
+button.count { border: 0; background: transparent; border-radius: 8px; padding: 3px 6px; margin-left: -6px; }
+button.count:hover { background: var(--accent-soft); color: var(--ink); }
+button.count .chev { font-size: .75rem; color: var(--accent); }
+form.signup.climbform { grid-template-columns: 1fr; }
+.nudge { display: flex; align-items: center; gap: 8px; margin: 0; background: var(--ok-soft); color: var(--ok); border-radius: 10px; padding: 8px 6px 8px 12px; font-weight: 600; font-size: .92rem; }
+.nudge span { flex: 1; min-width: 0; }
+.nudge .x { border: 0; background: transparent; color: inherit; width: 26px; height: 26px; border-radius: 50%; font-size: 1rem; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-weight: 600; font-size: .82rem; font-variant-numeric: tabular-nums; }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.info { background: var(--accent-soft); color: var(--accent); }
+.notice { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: var(--muted); font-size: .92rem; }
+.notice strong { color: var(--ink); }
+.day { display: flex; flex-direction: column; gap: 8px; }
+.day h2 { font-size: 1.15rem; text-transform: uppercase; color: var(--muted); letter-spacing: .06em; display: flex; gap: 8px; align-items: center; }
+.day h2::after { content: ""; flex: 1; border-top: 2px dashed var(--line); }
+.day h2 .today { color: var(--accent); font-size: .8rem; letter-spacing: .08em; }
+.slot { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.slot.past { opacity: .62; }
+.slot-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.slot-time { font-family: var(--display); font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.slot-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.slot-head { flex-wrap: nowrap; align-items: flex-start; }
+.slot-place { color: var(--muted); font-size: .9rem; }
+.ticks { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: -8px; }
+.people { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.person { --halo: var(--surface); display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 3px 4px 3px 8px; font-size: .92rem; }
+.person .who { display: inline-flex; align-items: center; gap: 6px; }
+.person .h { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .85rem; }
+.person .x { border: 0; background: transparent; color: var(--muted); width: 26px; height: 26px; border-radius: 50%; line-height: 1; font-size: 1rem; }
+.person .x:hover { background: var(--bad-soft); color: var(--bad); }
+.person.confirm { border-color: var(--bad); }
+.person .yes { border: 0; background: var(--bad); color: var(--surface); border-radius: 999px; padding: 2px 10px; font-size: .8rem; font-weight: 600; }
+.empty { color: var(--muted); font-size: .9rem; margin: 0; }
+.add { align-self: flex-start; border: 1px dashed var(--accent); color: var(--accent); background: transparent; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: .9rem; }
+.add:hover { background: var(--accent-soft); }
+form.signup { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: end; background: var(--bg); padding: 10px; border-radius: 10px; }
+form.signup label { display: flex; flex-direction: column; gap: 3px; font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; min-width: 0; }
+form.signup input { font: inherit; font-size: 1rem; text-transform: none; letter-spacing: 0; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; width: 100%; min-width: 0; }
+form.signup .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.primary { background: var(--accent); color: var(--surface); border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 600; }
+.ghost { background: transparent; border: 0; color: var(--muted); padding: 8px 10px; }
+.err { color: var(--bad); font-size: .88rem; }
+.hint { color: var(--muted); font-size: .82rem; }
+@media (max-width: 480px) {
+  form.signup { grid-template-columns: 1fr 1fr; }
+  form.signup label.name { grid-column: 1 / -1; }
+  h1 { font-size: 1.75rem; }
+}
+.empty-day { display: none; }
+/* Ordinateur : la semaine en 7 colonnes, comme l'ancien tableur. */
+@media (min-width: 1100px) {
+  .wrap { max-width: 1440px; }
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 14px 24px; }
+  .top > .toplinks { grid-column: 1 / -1; }
+  .top > #status { grid-column: 1 / -1; }
+  .weekbar { flex-wrap: nowrap; }
+  .weekbar .label { white-space: nowrap; }
+  #days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; align-items: start; }
+  #days > .notice { grid-column: 1 / -1; }
+  .empty-day { display: flex; }
+  .day h2 { font-size: 1rem; flex-wrap: wrap; row-gap: 0; }
+  .day h2::after { display: none; }
+  .day h2 .today { flex-basis: 100%; }
+  .day .empty { padding: 14px 4px; }
+  .slot { padding: 12px; gap: 8px; }
+  .slot-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .slot-time { font-size: 1.3rem; }
+  .slot-meta { min-width: 0; }
+  .status { flex-direction: row; align-items: center; text-align: left; flex-wrap: wrap; max-width: none; gap: 2px 6px; }
+  .status svg { width: 18px; height: 28px; }
+  .status small { flex-basis: 100%; padding-left: 24px; }
+  .people { flex-direction: column; align-items: stretch; }
+  .person { justify-content: flex-start; font-size: .88rem; }
+  /* Référent : prénom sur la première ligne, horaires dessous, croix à droite. */
+  .person { border-radius: 12px; padding: 4px 4px 4px 8px; }
+  .person .who { flex: 1 1 auto; min-width: 0; flex-direction: column; align-items: flex-start; gap: 0; }
+  .person .n { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .person .x, .person .yes { flex: none; }
+  .person .h { font-size: .78rem; }
+  .climb { font-size: .95rem; padding: 5px 12px 5px 8px; white-space: nowrap; }
+  .count { font-size: .82rem; }
+  .add { font-size: .85rem; }
+  form.signup { grid-template-columns: 1fr 1fr; }
+  form.signup label.name { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: no-preference) { .slot { transition: opacity .2s; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="mq-ferme" viewBox="0 0 40 64">
+      <path d="M31 20 C34 10 29 4 20 4 C9 4 3 11 6 22 L14 53 C15.5 59 21 60 24 55" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="31" y1="20" x2="24" y2="55" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      <rect x="24" y="33" width="7" height="13" rx="2" transform="rotate(11 27.5 39.5)" fill="currentColor"/>
+    </symbol>
+<symbol id="mq-ouvert" viewBox="0 0 40 64">
+      <path d="M31 20 C34 10 29 4 20 4 C9 4 3 11 6 22 L14 53 C15.5 59 21 60 24 55" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="24" y1="55" x2="14" y2="33" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    </symbol>
+<symbol id="huit" viewBox="2.5 2.4 50.7 105.2"><path d="M32.8 104.0 L32.8 103.8 L32.8 103.7 L32.8 103.6 L32.8 103.6 L32.8 103.5 L32.8 103.4 L32.8 103.4 L32.8 103.4 L32.8 103.3 L32.8 103.3 L32.8 103.3 L32.8 103.2 L32.8 103.2 L32.8 103.1 L32.8 103.1 L32.8 103.0 L32.8 102.9 L32.8 102.9 L32.8 102.7 L32.8 102.6 L32.8 102.5 L32.8 102.3 L32.8 102.1 L32.8 101.9 L32.8 101.7 L32.8 101.4 L32.8 101.1 L32.8 100.7 L32.8 100.4 L32.8 100.0 L32.8 99.5 L32.8 99.0 L32.7 98.5 L32.7 97.9 L32.7 97.3 L32.7 96.7 L32.7 96.0 L32.7 95.4 L32.7 94.7 L32.7 93.9 L32.7 93.2 L32.7 92.4 L32.7 91.7 L32.7 90.9 L32.7 90.1 L32.7 89.3 L32.7 88.4 L32.7 87.6 L32.7 86.8 L32.7 86.0 L32.7 85.1 L32.7 84.3 L32.7 83.5 L32.7 82.7 L32.7 81.9 L32.7 81.1 L32.7 80.3 L32.7 79.5 L32.7 78.8 L32.8 78.0 L32.8 77.3 L32.8 76.5 L32.8 75.8 L32.8 75.1 L32.9 74.3 L32.9 73.6 L32.9 72.9 L33.0 72.1 L33.0 71.4 L33.0 70.6 L33.0 69.9 L33.1 69.2 L33.1 68.4 L33.2 67.7 L33.2 66.9 L33.2 66.2 L33.3 65.5 L33.3 64.7 L33.4 64.0 L33.4 63.3 L33.5 62.6 L33.5 61.8 L33.6 61.1 L33.7 60.4 L33.7 59.7 L33.8 59.0 L33.9 58.3 L34.0 57.6 L34.0 56.9 L34.1 56.2 L34.2 55.6 L34.3 54.9 L34.5 54.2 L34.6 53.5 L34.7 52.8 L34.9 52.1 L35.1 51.5 L35.2 50.8 L35.4 50.1 L35.6 49.4 L35.8 48.6 L36.0 47.9 L36.2 47.2 L36.3 46.5 L36.5 45.9 L36.7 45.2 L36.9 44.5 L37.1 43.8 L37.3 43.1 L37.4 42.4 L37.6 41.7 L37.7 41.1 L37.9 40.4 L38.0 39.8 L38.1 39.1 L38.2 38.5 L38.3 37.8 L38.3 37.2 L38.3 36.6 L38.4 36.0 L38.4 35.4 L38.3 34.8 L38.3 34.3 L38.3 33.7 L38.2 33.2 L38.2 32.7 L38.1 32.1 L38.0 31.6 L37.9 31.1 L37.8 30.6 L37.7 30.1 L37.6 29.6 L37.5 29.2 L37.3 28.7 L37.2 28.2 L37.0 27.8 L36.9 27.3 L36.7 26.9 L36.5 26.5 L36.3 26.1 L36.0 25.7 L35.8 25.3 L35.6 24.9 L35.3 24.5 L35.0 24.1 L34.7 23.8 L34.4 23.4 L34.1 23.1 L33.8 22.8 L33.5 22.5 L33.1 22.2 L32.7 21.9 L32.4 21.6 L31.9 21.3 L31.5 21.1 L31.1 20.8 L30.6 20.6 L30.2 20.4 L29.7 20.2 L29.3 20.0 L28.8 19.8 L28.3 19.6 L27.8 19.5 L27.3 19.3 L26.8 19.2 L26.3 19.1 L25.7 19.0 L25.2 18.9 L24.7 18.8 L24.2 18.7 L23.7 18.7 L23.1 18.7 L22.6 18.6 L22.1 18.6 L21.6 18.7 L21.1 18.7 L20.6 18.7 L20.1 18.8 L19.6 18.9 L19.1 19.0 L18.6 19.1 L18.1 19.3 L17.6 19.5 L17.1 19.7 L16.6 19.9 L16.1 20.1 L15.6 20.3 L15.1 20.6 L14.6 20.9 L14.1 21.2 L13.6 21.5 L13.1 21.8 L12.6 22.1 L12.2 22.4 L11.7 22.8 L11.2 23.2 L10.8 23.5 L10.3 23.9 L9.9 24.3 L9.5 24.7 L9.1 25.1 L8.7 25.6 L8.3 26.0 L8.0 26.4 L7.7 26.9 L7.4 27.4 L7.1 27.9 L6.8 28.3 L6.6 28.9 L6.4 29.4 L6.3 29.9 L6.2 30.4 L6.1 30.9 L6.1 31.4 L6.0 32.0 L6.0 32.5 L6.0 33.0 L6.1 33.6 L6.1 34.1 L6.2 34.7 L6.3 35.2 L6.4 35.8 L6.6 36.3 L6.7 36.9 L6.9 37.4 L7.1 38.0 L7.3 38.5 L7.5 39.1 L7.7 39.6 L7.9 40.2 L8.2 40.7 L8.5 41.2 L8.7 41.7 L9.0 42.3 L9.3 42.8 L9.6 43.3 L10.0 43.8 L10.3 44.3 L10.6 44.7 L11.0 45.2 L11.4 45.7 L11.8 46.1 L12.2 46.6 L12.7 47.0 L13.1 47.5 L13.6 47.9 L14.1 48.3 L14.7 48.8 L15.2 49.2 L15.7 49.6 L16.3 50.0 L16.8 50.4 L17.4 50.7 L18.0 51.1 L18.6 51.5 L19.1 51.9 L19.7 52.3 L20.3 52.6 L20.9 53.0 L21.5 53.3 L22.0 53.7 L22.6 54.0 L23.2 54.4 L23.8 54.7 L24.3 55.0 L24.8 55.4 L25.4 55.7 L25.9 56.0 L26.4 56.3 L26.9 56.6 L27.4 57.0 L27.9 57.3 L28.5 57.6 L29.0 57.9 L29.5 58.2 L30.1 58.5 L30.6 58.7 L31.1 59.0 L31.7 59.2 L32.2 59.5 L32.7 59.7 L33.2 59.9 L33.7 60.2 L34.2 60.4 L34.7 60.6 L35.2 60.9 L35.7 61.1 L36.1 61.3 L36.6 61.6 L37.0 61.8 L37.4 62.0 L37.8 62.3 L38.2 62.5 L38.6 62.7 L39.0 63.0 L39.3 63.2 L39.6 63.5 L39.9 63.8 L40.2 64.0 L40.5 64.3 L40.8 64.6 L41.1 65.0 L41.3 65.3 L41.6 65.7 L41.9 66.0 L42.1 66.4 L42.4 66.8 L42.6 67.2 L42.9 67.5 L43.1 67.9 L43.3 68.3 L43.6 68.8 L43.8 69.2 L44.0 69.6 L44.1 70.0 L44.3 70.4 L44.5 70.8 L44.6 71.3 L44.8 71.7 L44.9 72.1 L45.0 72.5 L45.1 72.9 L45.2 73.3 L45.3 73.7 L45.4 74.1 L45.5 74.5 L45.5 74.9 L45.5 75.2 L45.5 75.6 L45.6 76.0 L45.5 76.3 L45.5 76.7 L45.5 77.0 L45.5 77.4 L45.4 77.8 L45.3 78.1 L45.2 78.5 L45.1 78.9 L45.0 79.3 L44.9 79.7 L44.8 80.1 L44.7 80.5 L44.5 80.8 L44.3 81.2 L44.2 81.6 L44.0 82.0 L43.8 82.4 L43.6 82.7 L43.4 83.1 L43.2 83.4 L42.9 83.8 L42.7 84.1 L42.5 84.5 L42.2 84.8 L42.0 85.1 L41.7 85.4 L41.5 85.7 L41.2 85.9 L40.9 86.2 L40.6 86.4 L40.4 86.7 L40.1 86.9 L39.7 87.2 L39.4 87.4 L39.0 87.6 L38.7 87.8 L38.3 88.1 L37.9 88.3 L37.5 88.5 L37.1 88.7 L36.6 88.9 L36.2 89.1 L35.7 89.3 L35.3 89.5 L34.8 89.6 L34.3 89.8 L33.9 89.9 L33.4 90.1 L32.9 90.2 L32.4 90.3 L32.0 90.5 L31.5 90.6 L31.0 90.7 L30.6 90.7 L30.1 90.8 L29.7 90.9 L29.2 90.9 L28.8 90.9 L28.4 90.9 L28.0 91.0 L27.5 90.9 L27.1 90.9 L26.7 90.9 L26.2 90.9 L25.8 90.8 L25.3 90.7 L24.8 90.7 L24.4 90.6 L23.9 90.5 L23.4 90.3 L22.9 90.2 L22.4 90.1 L22.0 89.9 L21.5 89.8 L21.0 89.6 L20.5 89.5 L20.1 89.3 L19.6 89.1 L19.2 88.9 L18.8 88.7 L18.3 88.5 L17.9 88.3 L17.5 88.1 L17.2 87.9 L16.8 87.6 L16.5 87.4 L16.1 87.2 L15.8 86.9 L15.6 86.7 L15.3 86.5 L15.1 86.3 L14.8 86.0 L14.6 85.8 L14.4 85.5 L14.2 85.2 L14.0 84.9 L13.8 84.6 L13.6 84.3 L13.4 84.0 L13.3 83.7 L13.1 83.3 L12.9 83.0 L12.8 82.6 L12.7 82.3 L12.5 81.9 L12.4 81.5 L12.3 81.1 L12.2 80.8 L12.1 80.4 L12.0 80.0 L12.0 79.6 L11.9 79.2 L11.8 78.8 L11.8 78.4 L11.8 78.0 L11.7 77.6 L11.7 77.2 L11.7 76.8 L11.7 76.4 L11.8 76.1 L11.8 75.7 L11.8 75.4 L11.9 75.0 L12.0 74.6 L12.1 74.2 L12.2 73.8 L12.3 73.4 L12.4 73.0 L12.6 72.5 L12.8 72.1 L12.9 71.6 L13.1 71.2 L13.3 70.7 L13.5 70.3 L13.8 69.8 L14.0 69.3 L14.2 68.9 L14.4 68.4 L14.7 67.9 L14.9 67.4 L15.2 67.0 L15.4 66.5 L15.6 66.0 L15.9 65.6 L16.1 65.1 L16.3 64.6 L16.6 64.1 L16.8 63.7 L17.0 63.2 L17.2 62.8 L17.4 62.3 L17.5 62.0 L17.7 61.6 L17.9 61.2 L18.1 60.8 L18.3 60.4 L18.5 60.0 L18.7 59.7 L18.9 59.3 L19.1 58.9 L19.3 58.6 L19.5 58.2 L19.8 57.8 L20.0 57.4 L20.2 57.0 L20.4 56.6 L20.6 56.3 L20.8 55.9 L21.0 55.5 L21.2 55.0 L21.4 54.6 L21.6 54.2 L21.8 53.8 L22.0 53.3 L22.1 52.9 L22.3 52.4 L22.5 51.9 L22.6 51.4 L22.8 50.9 L22.9 50.4 L23.0 49.9 L23.1 49.4 L23.2 48.9 L23.3 48.3 L23.4 47.8 L23.5 47.2 L23.6 46.6 L23.7 46.0 L23.7 45.5 L23.8 44.9 L23.8 44.3 L23.9 43.7 L23.9 43.1 L24.0 42.5 L24.0 42.0 L24.0 41.4 L24.1 40.8 L24.1 40.2 L24.1 39.6 L24.1 39.1 L24.2 38.5 L24.2 38.0 L24.2 37.4 L24.2 36.9 L24.2 36.4 L24.3 35.9 L24.3 35.4 L24.3 34.9 L24.3 34.5 L24.4 34.1 L24.4 33.6 L24.4 33.2 L24.4 32.8 L24.4 32.5 L24.4 32.1 L24.4 31.7 L24.5 31.4 L24.5 31.1 L24.5 30.8 L24.5 30.5 L24.5 30.2 L24.5 29.9 L24.5 29.6 L24.4 29.3 L24.4 29.0 L24.4 28.8 L24.4 28.5 L24.4 28.2 L24.4 27.9 L24.4 27.6 L24.4 27.3 L24.4 27.0 L24.4 26.7 L24.4 26.3 L24.4 26.0 L24.4 25.6 L24.4 25.2 L24.4 24.8 L24.4 24.4 L24.4 24.0 L24.4 23.5 L24.4 23.0 L24.4 22.5 L24.4 22.0 L24.4 21.4 L24.4 20.9 L24.4 20.3 L24.4 19.7 L24.4 19.1 L24.4 18.5 L24.4 17.9 L24.4 17.3 L24.4 16.7 L24.4 16.1 L24.4 15.5 L24.4 14.8 L24.4 14.2 L24.4 13.5 L24.4 12.9 L24.4 12.3 L24.4 11.6 L24.4 11.0 L24.4 10.3 L24.4 9.7 L24.4 9.0 L24.4 8.4 L24.4 7.8 L24.4 7.2 L24.4 6.6 L24.4 6.0" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.8 104.0 L28.8 103.8 L28.8 103.7 L28.8 103.6 L28.8 103.6 L28.8 103.5 L28.8 103.4 L28.8 103.4 L28.8 103.4 L28.8 103.3 L28.8 103.3 L28.8 103.3 L28.8 103.2 L28.8 103.2 L28.8 103.1 L28.8 103.1 L28.8 103.0 L28.8 102.9 L28.8 102.9 L28.8 102.7 L28.8 102.6 L28.8 102.5 L28.8 102.3 L28.8 102.1 L28.8 101.9 L28.8 101.7 L28.8 101.4 L28.8 101.1 L28.8 100.7 L28.8 100.4 L28.8 100.0 L28.8 99.5 L28.8 99.0 L28.7 98.5 L28.7 97.9 L28.7 97.3 L28.7 96.7 L28.7 96.1 L28.7 95.4 L28.7 94.7 L28.7 94.0 L28.7 93.2 L28.7 92.5 L28.7 91.7 L28.7 90.9 L28.7 90.1 L28.7 89.3 L28.7 88.5 L28.7 87.6 L28.7 86.8 L28.7 86.0 L28.7 85.1 L28.7 84.3 L28.7 83.5 L28.7 82.6 L28.7 81.8 L28.7 81.0 L28.7 80.2 L28.7 79.4 L28.7 78.6 L28.8 77.9 L28.8 77.2 L28.8 76.4 L28.8 75.7 L28.9 74.9 L28.9 74.2 L28.9 73.5 L28.9 72.7 L29.0 72.0 L29.0 71.2 L29.0 70.5 L29.0 69.7 L29.1 69.0 L29.1 68.2 L29.2 67.5 L29.2 66.7 L29.2 66.0 L29.3 65.2 L29.3 64.5 L29.4 63.7 L29.4 63.0 L29.5 62.3 L29.6 61.5 L29.6 60.8 L29.7 60.0 L29.8 59.3 L29.8 58.6 L29.9 57.9 L30.0 57.1 L30.1 56.4 L30.2 55.7 L30.3 54.9 L30.4 54.2 L30.5 53.5 L30.7 52.7 L30.8 52.0 L31.0 51.3 L31.2 50.5 L31.4 49.8 L31.5 49.1 L31.7 48.3 L31.9 47.6 L32.1 46.9 L32.3 46.2 L32.5 45.5 L32.7 44.8 L32.9 44.1 L33.0 43.5 L33.2 42.8 L33.4 42.1 L33.5 41.5 L33.7 40.9 L33.8 40.2 L33.9 39.6 L34.0 39.1 L34.1 38.5 L34.2 37.9 L34.3 37.4 L34.3 36.9 L34.3 36.4 L34.4 35.9 L34.4 35.5 L34.3 35.0 L34.3 34.5 L34.3 34.0 L34.2 33.6 L34.2 33.1 L34.1 32.7 L34.1 32.3 L34.0 31.8 L33.9 31.4 L33.8 31.0 L33.7 30.6 L33.6 30.3 L33.5 29.9 L33.4 29.5 L33.3 29.2 L33.2 28.9 L33.0 28.5 L32.9 28.2 L32.7 27.9 L32.6 27.6 L32.4 27.3 L32.2 27.1 L32.0 26.8 L31.9 26.6 L31.7 26.3 L31.5 26.1 L31.3 25.9 L31.0 25.7 L30.8 25.5 L30.6 25.3 L30.4 25.1 L30.1 24.9 L29.8 24.7 L29.5 24.5 L29.2 24.4 L28.9 24.2 L28.5 24.0 L28.2 23.9 L27.8 23.7 L27.4 23.6 L27.0 23.4 L26.6 23.3 L26.2 23.2 L25.8 23.1 L25.4 23.0 L25.0 22.9 L24.6 22.8 L24.2 22.8 L23.7 22.7 L23.3 22.7 L22.9 22.7 L22.5 22.6 L22.1 22.6 L21.8 22.7 L21.4 22.7 L21.0 22.7 L20.7 22.8 L20.4 22.8 L20.0 22.9 L19.7 23.0 L19.4 23.1 L19.0 23.2 L18.6 23.4 L18.2 23.5 L17.8 23.7 L17.4 23.9 L17.0 24.1 L16.6 24.4 L16.2 24.6 L15.7 24.9 L15.3 25.1 L14.9 25.4 L14.5 25.7 L14.1 26.0 L13.7 26.3 L13.4 26.6 L13.0 26.9 L12.6 27.2 L12.3 27.6 L12.0 27.9 L11.7 28.2 L11.4 28.5 L11.2 28.8 L11.0 29.1 L10.8 29.5 L10.6 29.7 L10.5 30.0 L10.4 30.3 L10.3 30.5 L10.2 30.8 L10.1 31.1 L10.1 31.4 L10.1 31.7 L10.0 32.1 L10.0 32.5 L10.0 32.8 L10.1 33.2 L10.1 33.6 L10.2 34.0 L10.2 34.5 L10.3 34.9 L10.4 35.3 L10.6 35.8 L10.7 36.2 L10.8 36.7 L11.0 37.1 L11.2 37.6 L11.4 38.0 L11.6 38.5 L11.8 38.9 L12.0 39.4 L12.2 39.8 L12.5 40.3 L12.7 40.7 L13.0 41.1 L13.3 41.5 L13.6 41.9 L13.8 42.3 L14.1 42.7 L14.4 43.1 L14.7 43.4 L15.1 43.8 L15.4 44.2 L15.8 44.5 L16.2 44.9 L16.7 45.2 L17.1 45.6 L17.6 46.0 L18.1 46.3 L18.6 46.7 L19.1 47.1 L19.6 47.4 L20.2 47.8 L20.7 48.2 L21.3 48.5 L21.8 48.9 L22.4 49.2 L23.0 49.6 L23.6 49.9 L24.1 50.3 L24.7 50.6 L25.3 50.9 L25.8 51.3 L26.4 51.6 L26.9 52.0 L27.5 52.3 L28.0 52.6 L28.5 52.9 L29.0 53.3 L29.5 53.6 L30.0 53.8 L30.4 54.1 L30.9 54.4 L31.4 54.6 L31.9 54.9 L32.4 55.1 L32.9 55.4 L33.4 55.6 L33.9 55.8 L34.4 56.1 L34.9 56.3 L35.4 56.5 L35.9 56.8 L36.4 57.0 L36.9 57.3 L37.4 57.5 L37.9 57.8 L38.4 58.0 L38.9 58.3 L39.4 58.5 L39.9 58.8 L40.4 59.1 L40.8 59.4 L41.3 59.7 L41.7 60.1 L42.2 60.4 L42.6 60.8 L43.0 61.2 L43.4 61.6 L43.8 62.0 L44.1 62.4 L44.5 62.8 L44.8 63.2 L45.1 63.7 L45.4 64.1 L45.7 64.6 L46.0 65.0 L46.3 65.5 L46.6 66.0 L46.9 66.4 L47.1 66.9 L47.4 67.4 L47.6 67.9 L47.8 68.4 L48.0 68.9 L48.2 69.4 L48.4 69.9 L48.6 70.4 L48.7 70.9 L48.9 71.4 L49.0 71.9 L49.1 72.5 L49.2 73.0 L49.3 73.5 L49.4 74.0 L49.5 74.5 L49.5 75.0 L49.5 75.5 L49.6 76.0 L49.5 76.4 L49.5 76.9 L49.5 77.4 L49.4 77.9 L49.3 78.4 L49.2 78.9 L49.1 79.4 L49.0 79.9 L48.9 80.4 L48.7 80.9 L48.6 81.4 L48.4 81.9 L48.2 82.4 L48.0 82.8 L47.8 83.3 L47.6 83.8 L47.3 84.2 L47.1 84.7 L46.8 85.1 L46.6 85.6 L46.3 86.0 L46.0 86.4 L45.7 86.9 L45.4 87.3 L45.0 87.7 L44.7 88.0 L44.4 88.4 L44.0 88.8 L43.6 89.1 L43.3 89.5 L42.9 89.8 L42.5 90.1 L42.1 90.4 L41.6 90.7 L41.2 91.0 L40.7 91.3 L40.2 91.6 L39.8 91.8 L39.3 92.1 L38.8 92.3 L38.3 92.6 L37.7 92.8 L37.2 93.0 L36.7 93.2 L36.2 93.4 L35.6 93.6 L35.1 93.8 L34.5 93.9 L34.0 94.1 L33.4 94.2 L32.9 94.4 L32.3 94.5 L31.8 94.6 L31.2 94.7 L30.7 94.8 L30.1 94.8 L29.6 94.9 L29.0 94.9 L28.5 94.9 L28.0 95.0 L27.4 94.9 L26.9 94.9 L26.3 94.9 L25.8 94.8 L25.2 94.8 L24.7 94.7 L24.1 94.6 L23.6 94.5 L23.0 94.4 L22.4 94.2 L21.9 94.1 L21.3 93.9 L20.8 93.8 L20.2 93.6 L19.7 93.4 L19.1 93.2 L18.6 93.0 L18.1 92.8 L17.5 92.6 L17.0 92.3 L16.5 92.1 L16.0 91.8 L15.6 91.5 L15.1 91.3 L14.6 91.0 L14.2 90.7 L13.8 90.4 L13.4 90.1 L13.0 89.8 L12.6 89.4 L12.2 89.1 L11.9 88.7 L11.6 88.3 L11.3 88.0 L11.0 87.6 L10.7 87.2 L10.4 86.7 L10.1 86.3 L9.9 85.9 L9.7 85.4 L9.5 85.0 L9.3 84.5 L9.1 84.1 L8.9 83.6 L8.7 83.1 L8.6 82.7 L8.4 82.2 L8.3 81.7 L8.2 81.2 L8.1 80.7 L8.0 80.3 L7.9 79.8 L7.9 79.3 L7.8 78.8 L7.8 78.3 L7.8 77.8 L7.7 77.3 L7.7 76.8 L7.7 76.3 L7.8 75.8 L7.8 75.3 L7.9 74.8 L8.0 74.3 L8.1 73.7 L8.2 73.2 L8.3 72.7 L8.5 72.2 L8.7 71.7 L8.8 71.1 L9.0 70.6 L9.2 70.1 L9.5 69.6 L9.7 69.1 L9.9 68.6 L10.1 68.1 L10.4 67.6 L10.6 67.1 L10.9 66.6 L11.1 66.1 L11.3 65.6 L11.6 65.2 L11.8 64.7 L12.1 64.2 L12.3 63.8 L12.5 63.3 L12.7 62.9 L12.9 62.4 L13.1 62.0 L13.3 61.6 L13.5 61.1 L13.7 60.7 L13.9 60.3 L14.1 59.8 L14.3 59.4 L14.6 59.0 L14.8 58.6 L15.0 58.2 L15.2 57.8 L15.4 57.4 L15.6 57.0 L15.8 56.6 L16.0 56.2 L16.3 55.9 L16.5 55.5 L16.7 55.1 L16.9 54.8 L17.0 54.4 L17.2 54.0 L17.4 53.7 L17.6 53.3 L17.8 52.9 L17.9 52.6 L18.1 52.2 L18.2 51.8 L18.4 51.5 L18.5 51.1 L18.7 50.7 L18.8 50.3 L18.9 49.9 L19.0 49.5 L19.1 49.0 L19.2 48.6 L19.3 48.1 L19.4 47.6 L19.5 47.1 L19.5 46.6 L19.6 46.1 L19.7 45.6 L19.7 45.0 L19.8 44.5 L19.8 44.0 L19.9 43.4 L19.9 42.8 L20.0 42.3 L20.0 41.7 L20.0 41.1 L20.1 40.6 L20.1 40.0 L20.1 39.5 L20.1 38.9 L20.2 38.4 L20.2 37.8 L20.2 37.3 L20.2 36.8 L20.3 36.2 L20.3 35.7 L20.3 35.2 L20.3 34.8 L20.3 34.3 L20.4 33.9 L20.4 33.4 L20.4 33.0 L20.4 32.7 L20.4 32.3 L20.4 32.0 L20.4 31.7 L20.5 31.3 L20.5 31.0 L20.5 30.8 L20.5 30.5 L20.5 30.2 L20.5 29.9 L20.5 29.7 L20.4 29.4 L20.4 29.1 L20.4 28.9 L20.4 28.6 L20.4 28.3 L20.4 28.0 L20.4 27.7 L20.4 27.4 L20.4 27.1 L20.4 26.8 L20.4 26.4 L20.4 26.0 L20.4 25.7 L20.4 25.3 L20.4 24.9 L20.4 24.4 L20.4 24.0 L20.4 23.5 L20.4 23.0 L20.4 22.5 L20.4 22.0 L20.4 21.4 L20.4 20.9 L20.4 20.3 L20.4 19.7 L20.4 19.1 L20.4 18.5 L20.4 17.9 L20.4 17.3 L20.4 16.7 L20.4 16.1 L20.4 15.5 L20.4 14.8 L20.4 14.2 L20.4 13.5 L20.4 12.9 L20.4 12.3 L20.4 11.6 L20.4 11.0 L20.4 10.3 L20.4 9.7 L20.4 9.0 L20.4 8.4 L20.4 7.8 L20.4 7.2 L20.4 6.6 L20.4 6.0" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M32.8 104.0 L32.8 103.8 L32.8 103.7 L32.8 103.6 L32.8 103.6 L32.8 103.5 L32.8 103.4 L32.8 103.4 L32.8 103.4 L32.8 103.3 L32.8 103.3 L32.8 103.3 L32.8 103.2 L32.8 103.2 L32.8 103.1 L32.8 103.1 L32.8 103.0 L32.8 102.9 L32.8 102.9 L32.8 102.7 L32.8 102.6 L32.8 102.5 L32.8 102.3 L32.8 102.1 L32.8 101.9 L32.8 101.7 L32.8 101.4 L32.8 101.1 L32.8 100.7 L32.8 100.4 L32.8 100.0 L32.8 99.5 L32.8 99.0 L32.7 98.5 L32.7 97.9 L32.7 97.3 L32.7 96.7 L32.7 96.0 L32.7 95.4 L32.7 94.7 L32.7 93.9 L32.7 93.2 L32.7 92.4 L32.7 91.7 L32.7 90.9 L32.7 90.1 L32.7 89.3 L32.7 88.4 L32.7 87.6 L32.7 86.8 L32.7 86.0 L32.7 85.1 L32.7 84.3 L32.7 83.5 L32.7 82.7 L32.7 81.9 L32.7 81.1 L32.7 80.3 L32.7 79.5 L32.7 78.8 L32.8 78.0 L32.8 77.3 L32.8 76.5 L32.8 75.8 L32.8 75.1 L32.9 74.3 L32.9 73.6 L32.9 72.9 L33.0 72.1 L33.0 71.4 L33.0 70.6 L33.0 69.9 L33.1 69.2 L33.1 68.4 L33.2 67.7 L33.2 66.9 L33.2 66.2 L33.3 65.5 L33.3 64.7 L33.4 64.0 L33.4 63.3 L33.5 62.6 L33.5 61.8 L33.6 61.1 L33.7 60.4 L33.7 59.7 L33.8 59.0 L33.9 58.3 L34.0 57.6 L34.0 56.9 L34.1 56.2 L34.2 55.6 L34.3 54.9 L34.5 54.2 L34.6 53.5 L34.7 52.8 L34.9 52.1 L35.1 51.5 L35.2 50.8 L35.4 50.1 L35.6 49.4 L35.8 48.6 L36.0 47.9 L36.2 47.2 L36.3 46.5 L36.5 45.9 L36.7 45.2 L36.9 44.5 L37.1 43.8 L37.3 43.1 L37.4 42.4 L37.6 41.7 L37.7 41.1 L37.9 40.4 L38.0 39.8 L38.1 39.1 L38.2 38.5 L38.3 37.8 L38.3 37.2 L38.3 36.6 L38.4 36.0 L38.4 35.4 L38.3 34.8 L38.3 34.3 L38.3 33.7 L38.2 33.2 L38.2 32.7 L38.1 32.1 L38.0 31.6 L37.9 31.1 L37.8 30.6 L37.7 30.1 L37.6 29.6 L37.5 29.2 L37.3 28.7 L37.2 28.2 L37.0 27.8 L36.9 27.3 L36.7 26.9 L36.5 26.5 L36.3 26.1 L36.0 25.7 L35.8 25.3 L35.6 24.9 L35.3 24.5 L35.0 24.1 L34.7 23.8 L34.4 23.4 L34.1 23.1 L33.8 22.8 L33.5 22.5 L33.1 22.2 L32.7 21.9 L32.4 21.6 L31.9 21.3 L31.5 21.1 L31.1 20.8 L30.6 20.6 L30.2 20.4 L29.7 20.2 L29.3 20.0 L28.8 19.8 L28.3 19.6 L27.8 19.5 L27.3 19.3 L26.8 19.2 L26.3 19.1 L25.7 19.0 L25.2 18.9 L24.7 18.8 L24.2 18.7 L23.7 18.7 L23.1 18.7 L22.6 18.6 L22.1 18.6 L21.6 18.7 L21.1 18.7 L20.6 18.7 L20.1 18.8 L19.6 18.9 L19.1 19.0 L18.6 19.1 L18.1 19.3 L17.6 19.5 L17.1 19.7 L16.6 19.9 L16.1 20.1 L15.6 20.3 L15.1 20.6 L14.6 20.9 L14.1 21.2 L13.6 21.5 L13.1 21.8 L12.6 22.1 L12.2 22.4 L11.7 22.8 L11.2 23.2 L10.8 23.5 L10.3 23.9 L9.9 24.3 L9.5 24.7 L9.1 25.1 L8.7 25.6 L8.3 26.0 L8.0 26.4 L7.7 26.9 L7.4 27.4 L7.1 27.9 L6.8 28.3 L6.6 28.9 L6.4 29.4 L6.3 29.9 L6.2 30.4 L6.1 30.9 L6.1 31.4 L6.0 32.0 L6.0 32.5 L6.0 33.0 L6.1 33.6 L6.1 34.1 L6.2 34.7 L6.3 35.2 L6.4 35.8 L6.6 36.3 L6.7 36.9 L6.9 37.4 L7.1 38.0 L7.3 38.5 L7.5 39.1 L7.7 39.6 L7.9 40.2 L8.2 40.7 L8.5 41.2 L8.7 41.7 L9.0 42.3 L9.3 42.8 L9.6 43.3 L10.0 43.8 L10.3 44.3 L10.6 44.7 L11.0 45.2 L11.4 45.7 L11.8 46.1 L12.2 46.6 L12.7 47.0 L13.1 47.5 L13.6 47.9 L14.1 48.3 L14.7 48.8 L15.2 49.2 L15.7 49.6 L16.3 50.0 L16.8 50.4 L17.4 50.7 L18.0 51.1 L18.6 51.5 L19.1 51.9 L19.7 52.3 L20.3 52.6 L20.9 53.0 L21.5 53.3 L22.0 53.7 L22.6 54.0 L23.2 54.4 L23.8 54.7 L24.3 55.0 L24.8 55.4 L25.4 55.7 L25.9 56.0 L26.4 56.3 L26.9 56.6 L27.4 57.0 L27.9 57.3 L28.5 57.6 L29.0 57.9 L29.5 58.2 L30.1 58.5 L30.6 58.7 L31.1 59.0 L31.7 59.2 L32.2 59.5 L32.7 59.7 L33.2 59.9 L33.7 60.2 L34.2 60.4 L34.7 60.6 L35.2 60.9 L35.7 61.1 L36.1 61.3 L36.6 61.6 L37.0 61.8 L37.4 62.0 L37.8 62.3 L38.2 62.5 L38.6 62.7 L39.0 63.0 L39.3 63.2 L39.6 63.5 L39.9 63.8 L40.2 64.0 L40.5 64.3 L40.8 64.6 L41.1 65.0 L41.3 65.3 L41.6 65.7 L41.9 66.0 L42.1 66.4 L42.4 66.8 L42.6 67.2 L42.9 67.5 L43.1 67.9 L43.3 68.3 L43.6 68.8 L43.8 69.2 L44.0 69.6 L44.1 70.0 L44.3 70.4 L44.5 70.8 L44.6 71.3 L44.8 71.7 L44.9 72.1 L45.0 72.5 L45.1 72.9 L45.2 73.3 L45.3 73.7 L45.4 74.1 L45.5 74.5 L45.5 74.9 L45.5 75.2 L45.5 75.6 L45.6 76.0 L45.5 76.3 L45.5 76.7 L45.5 77.0 L45.5 77.4 L45.4 77.8 L45.3 78.1 L45.2 78.5 L45.1 78.9 L45.0 79.3 L44.9 79.7 L44.8 80.1 L44.7 80.5 L44.5 80.8 L44.3 81.2 L44.2 81.6 L44.0 82.0 L43.8 82.4 L43.6 82.7 L43.4 83.1 L43.2 83.4 L42.9 83.8 L42.7 84.1 L42.5 84.5 L42.2 84.8 L42.0 85.1 L41.7 85.4 L41.5 85.7 L41.2 85.9 L40.9 86.2 L40.6 86.4 L40.4 86.7 L40.1 86.9 L39.7 87.2 L39.4 87.4 L39.0 87.6 L38.7 87.8 L38.3 88.1 L37.9 88.3 L37.5 88.5 L37.1 88.7 L36.6 88.9 L36.2 89.1 L35.7 89.3 L35.3 89.5 L34.8 89.6 L34.3 89.8 L33.9 89.9 L33.4 90.1 L32.9 90.2 L32.4 90.3 L32.0 90.5 L31.5 90.6 L31.0 90.7 L30.6 90.7 L30.1 90.8 L29.7 90.9 L29.2 90.9 L28.8 90.9 L28.4 90.9 L28.0 91.0 L27.5 90.9 L27.1 90.9 L26.7 90.9 L26.2 90.9 L25.8 90.8 L25.3 90.7 L24.8 90.7 L24.4 90.6 L23.9 90.5 L23.4 90.3 L22.9 90.2 L22.4 90.1 L22.0 89.9 L21.5 89.8 L21.0 89.6 L20.5 89.5 L20.1 89.3 L19.6 89.1 L19.2 88.9 L18.8 88.7 L18.3 88.5 L17.9 88.3 L17.5 88.1 L17.2 87.9 L16.8 87.6 L16.5 87.4 L16.1 87.2 L15.8 86.9 L15.6 86.7 L15.3 86.5 L15.1 86.3 L14.8 86.0 L14.6 85.8 L14.4 85.5 L14.2 85.2 L14.0 84.9 L13.8 84.6 L13.6 84.3 L13.4 84.0 L13.3 83.7 L13.1 83.3 L12.9 83.0 L12.8 82.6 L12.7 82.3 L12.5 81.9 L12.4 81.5 L12.3 81.1 L12.2 80.8 L12.1 80.4 L12.0 80.0 L12.0 79.6 L11.9 79.2 L11.8 78.8 L11.8 78.4 L11.8 78.0 L11.7 77.6 L11.7 77.2 L11.7 76.8 L11.7 76.4 L11.8 76.1 L11.8 75.7 L11.8 75.4 L11.9 75.0 L12.0 74.6 L12.1 74.2 L12.2 73.8 L12.3 73.4 L12.4 73.0 L12.6 72.5 L12.8 72.1 L12.9 71.6 L13.1 71.2 L13.3 70.7 L13.5 70.3 L13.8 69.8 L14.0 69.3 L14.2 68.9 L14.4 68.4 L14.7 67.9 L14.9 67.4 L15.2 67.0 L15.4 66.5 L15.6 66.0 L15.9 65.6 L16.1 65.1 L16.3 64.6 L16.6 64.1 L16.8 63.7 L17.0 63.2 L17.2 62.8 L17.4 62.3 L17.5 62.0 L17.7 61.6 L17.9 61.2 L18.1 60.8 L18.3 60.4 L18.5 60.0 L18.7 59.7 L18.9 59.3 L19.1 58.9 L19.3 58.6 L19.5 58.2 L19.8 57.8 L20.0 57.4 L20.2 57.0 L20.4 56.6 L20.6 56.3 L20.8 55.9 L21.0 55.5 L21.2 55.0 L21.4 54.6 L21.6 54.2 L21.8 53.8 L22.0 53.3 L22.1 52.9 L22.3 52.4 L22.5 51.9 L22.6 51.4 L22.8 50.9 L22.9 50.4 L23.0 49.9 L23.1 49.4 L23.2 48.9 L23.3 48.3 L23.4 47.8 L23.5 47.2 L23.6 46.6 L23.7 46.0 L23.7 45.5 L23.8 44.9 L23.8 44.3 L23.9 43.7 L23.9 43.1 L24.0 42.5 L24.0 42.0 L24.0 41.4 L24.1 40.8 L24.1 40.2 L24.1 39.6 L24.1 39.1 L24.2 38.5 L24.2 38.0 L24.2 37.4 L24.2 36.9 L24.2 36.4 L24.3 35.9 L24.3 35.4 L24.3 34.9 L24.3 34.5 L24.4 34.1 L24.4 33.6 L24.4 33.2 L24.4 32.8 L24.4 32.5 L24.4 32.1 L24.4 31.7 L24.5 31.4 L24.5 31.1 L24.5 30.8 L24.5 30.5 L24.5 30.2 L24.5 29.9 L24.5 29.6 L24.4 29.3 L24.4 29.0 L24.4 28.8 L24.4 28.5 L24.4 28.2 L24.4 27.9 L24.4 27.6 L24.4 27.3 L24.4 27.0 L24.4 26.7 L24.4 26.3 L24.4 26.0 L24.4 25.6 L24.4 25.2 L24.4 24.8 L24.4 24.4 L24.4 24.0 L24.4 23.5 L24.4 23.0 L24.4 22.5 L24.4 22.0 L24.4 21.4 L24.4 20.9 L24.4 20.3 L24.4 19.7 L24.4 19.1 L24.4 18.5 L24.4 17.9 L24.4 17.3 L24.4 16.7 L24.4 16.1 L24.4 15.5 L24.4 14.8 L24.4 14.2 L24.4 13.5 L24.4 12.9 L24.4 12.3 L24.4 11.6 L24.4 11.0 L24.4 10.3 L24.4 9.7 L24.4 9.0 L24.4 8.4 L24.4 7.8 L24.4 7.2 L24.4 6.6 L24.4 6.0" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.8 104.0 L28.8 103.8 L28.8 103.7 L28.8 103.6 L28.8 103.6 L28.8 103.5 L28.8 103.4 L28.8 103.4 L28.8 103.4 L28.8 103.3 L28.8 103.3 L28.8 103.3 L28.8 103.2 L28.8 103.2 L28.8 103.1 L28.8 103.1 L28.8 103.0 L28.8 102.9 L28.8 102.9 L28.8 102.7 L28.8 102.6 L28.8 102.5 L28.8 102.3 L28.8 102.1 L28.8 101.9 L28.8 101.7 L28.8 101.4 L28.8 101.1 L28.8 100.7 L28.8 100.4 L28.8 100.0 L28.8 99.5 L28.8 99.0 L28.7 98.5 L28.7 97.9 L28.7 97.3 L28.7 96.7 L28.7 96.1 L28.7 95.4 L28.7 94.7 L28.7 94.0 L28.7 93.2 L28.7 92.5 L28.7 91.7 L28.7 90.9 L28.7 90.1 L28.7 89.3 L28.7 88.5 L28.7 87.6 L28.7 86.8 L28.7 86.0 L28.7 85.1 L28.7 84.3 L28.7 83.5 L28.7 82.6 L28.7 81.8 L28.7 81.0 L28.7 80.2 L28.7 79.4 L28.7 78.6 L28.8 77.9 L28.8 77.2 L28.8 76.4 L28.8 75.7 L28.9 74.9 L28.9 74.2 L28.9 73.5 L28.9 72.7 L29.0 72.0 L29.0 71.2 L29.0 70.5 L29.0 69.7 L29.1 69.0 L29.1 68.2 L29.2 67.5 L29.2 66.7 L29.2 66.0 L29.3 65.2 L29.3 64.5 L29.4 63.7 L29.4 63.0 L29.5 62.3 L29.6 61.5 L29.6 60.8 L29.7 60.0 L29.8 59.3 L29.8 58.6 L29.9 57.9 L30.0 57.1 L30.1 56.4 L30.2 55.7 L30.3 54.9 L30.4 54.2 L30.5 53.5 L30.7 52.7 L30.8 52.0 L31.0 51.3 L31.2 50.5 L31.4 49.8 L31.5 49.1 L31.7 48.3 L31.9 47.6 L32.1 46.9 L32.3 46.2 L32.5 45.5 L32.7 44.8 L32.9 44.1 L33.0 43.5 L33.2 42.8 L33.4 42.1 L33.5 41.5 L33.7 40.9 L33.8 40.2 L33.9 39.6 L34.0 39.1 L34.1 38.5 L34.2 37.9 L34.3 37.4 L34.3 36.9 L34.3 36.4 L34.4 35.9 L34.4 35.5 L34.3 35.0 L34.3 34.5 L34.3 34.0 L34.2 33.6 L34.2 33.1 L34.1 32.7 L34.1 32.3 L34.0 31.8 L33.9 31.4 L33.8 31.0 L33.7 30.6 L33.6 30.3 L33.5 29.9 L33.4 29.5 L33.3 29.2 L33.2 28.9 L33.0 28.5 L32.9 28.2 L32.7 27.9 L32.6 27.6 L32.4 27.3 L32.2 27.1 L32.0 26.8 L31.9 26.6 L31.7 26.3 L31.5 26.1 L31.3 25.9 L31.0 25.7 L30.8 25.5 L30.6 25.3 L30.4 25.1 L30.1 24.9 L29.8 24.7 L29.5 24.5 L29.2 24.4 L28.9 24.2 L28.5 24.0 L28.2 23.9 L27.8 23.7 L27.4 23.6 L27.0 23.4 L26.6 23.3 L26.2 23.2 L25.8 23.1 L25.4 23.0 L25.0 22.9 L24.6 22.8 L24.2 22.8 L23.7 22.7 L23.3 22.7 L22.9 22.7 L22.5 22.6 L22.1 22.6 L21.8 22.7 L21.4 22.7 L21.0 22.7 L20.7 22.8 L20.4 22.8 L20.0 22.9 L19.7 23.0 L19.4 23.1 L19.0 23.2 L18.6 23.4 L18.2 23.5 L17.8 23.7 L17.4 23.9 L17.0 24.1 L16.6 24.4 L16.2 24.6 L15.7 24.9 L15.3 25.1 L14.9 25.4 L14.5 25.7 L14.1 26.0 L13.7 26.3 L13.4 26.6 L13.0 26.9 L12.6 27.2 L12.3 27.6 L12.0 27.9 L11.7 28.2 L11.4 28.5 L11.2 28.8 L11.0 29.1 L10.8 29.5 L10.6 29.7 L10.5 30.0 L10.4 30.3 L10.3 30.5 L10.2 30.8 L10.1 31.1 L10.1 31.4 L10.1 31.7 L10.0 32.1 L10.0 32.5 L10.0 32.8 L10.1 33.2 L10.1 33.6 L10.2 34.0 L10.2 34.5 L10.3 34.9 L10.4 35.3 L10.6 35.8 L10.7 36.2 L10.8 36.7 L11.0 37.1 L11.2 37.6 L11.4 38.0 L11.6 38.5 L11.8 38.9 L12.0 39.4 L12.2 39.8 L12.5 40.3 L12.7 40.7 L13.0 41.1 L13.3 41.5 L13.6 41.9 L13.8 42.3 L14.1 42.7 L14.4 43.1 L14.7 43.4 L15.1 43.8 L15.4 44.2 L15.8 44.5 L16.2 44.9 L16.7 45.2 L17.1 45.6 L17.6 46.0 L18.1 46.3 L18.6 46.7 L19.1 47.1 L19.6 47.4 L20.2 47.8 L20.7 48.2 L21.3 48.5 L21.8 48.9 L22.4 49.2 L23.0 49.6 L23.6 49.9 L24.1 50.3 L24.7 50.6 L25.3 50.9 L25.8 51.3 L26.4 51.6 L26.9 52.0 L27.5 52.3 L28.0 52.6 L28.5 52.9 L29.0 53.3 L29.5 53.6 L30.0 53.8 L30.4 54.1 L30.9 54.4 L31.4 54.6 L31.9 54.9 L32.4 55.1 L32.9 55.4 L33.4 55.6 L33.9 55.8 L34.4 56.1 L34.9 56.3 L35.4 56.5 L35.9 56.8 L36.4 57.0 L36.9 57.3 L37.4 57.5 L37.9 57.8 L38.4 58.0 L38.9 58.3 L39.4 58.5 L39.9 58.8 L40.4 59.1 L40.8 59.4 L41.3 59.7 L41.7 60.1 L42.2 60.4 L42.6 60.8 L43.0 61.2 L43.4 61.6 L43.8 62.0 L44.1 62.4 L44.5 62.8 L44.8 63.2 L45.1 63.7 L45.4 64.1 L45.7 64.6 L46.0 65.0 L46.3 65.5 L46.6 66.0 L46.9 66.4 L47.1 66.9 L47.4 67.4 L47.6 67.9 L47.8 68.4 L48.0 68.9 L48.2 69.4 L48.4 69.9 L48.6 70.4 L48.7 70.9 L48.9 71.4 L49.0 71.9 L49.1 72.5 L49.2 73.0 L49.3 73.5 L49.4 74.0 L49.5 74.5 L49.5 75.0 L49.5 75.5 L49.6 76.0 L49.5 76.4 L49.5 76.9 L49.5 77.4 L49.4 77.9 L49.3 78.4 L49.2 78.9 L49.1 79.4 L49.0 79.9 L48.9 80.4 L48.7 80.9 L48.6 81.4 L48.4 81.9 L48.2 82.4 L48.0 82.8 L47.8 83.3 L47.6 83.8 L47.3 84.2 L47.1 84.7 L46.8 85.1 L46.6 85.6 L46.3 86.0 L46.0 86.4 L45.7 86.9 L45.4 87.3 L45.0 87.7 L44.7 88.0 L44.4 88.4 L44.0 88.8 L43.6 89.1 L43.3 89.5 L42.9 89.8 L42.5 90.1 L42.1 90.4 L41.6 90.7 L41.2 91.0 L40.7 91.3 L40.2 91.6 L39.8 91.8 L39.3 92.1 L38.8 92.3 L38.3 92.6 L37.7 92.8 L37.2 93.0 L36.7 93.2 L36.2 93.4 L35.6 93.6 L35.1 93.8 L34.5 93.9 L34.0 94.1 L33.4 94.2 L32.9 94.4 L32.3 94.5 L31.8 94.6 L31.2 94.7 L30.7 94.8 L30.1 94.8 L29.6 94.9 L29.0 94.9 L28.5 94.9 L28.0 95.0 L27.4 94.9 L26.9 94.9 L26.3 94.9 L25.8 94.8 L25.2 94.8 L24.7 94.7 L24.1 94.6 L23.6 94.5 L23.0 94.4 L22.4 94.2 L21.9 94.1 L21.3 93.9 L20.8 93.8 L20.2 93.6 L19.7 93.4 L19.1 93.2 L18.6 93.0 L18.1 92.8 L17.5 92.6 L17.0 92.3 L16.5 92.1 L16.0 91.8 L15.6 91.5 L15.1 91.3 L14.6 91.0 L14.2 90.7 L13.8 90.4 L13.4 90.1 L13.0 89.8 L12.6 89.4 L12.2 89.1 L11.9 88.7 L11.6 88.3 L11.3 88.0 L11.0 87.6 L10.7 87.2 L10.4 86.7 L10.1 86.3 L9.9 85.9 L9.7 85.4 L9.5 85.0 L9.3 84.5 L9.1 84.1 L8.9 83.6 L8.7 83.1 L8.6 82.7 L8.4 82.2 L8.3 81.7 L8.2 81.2 L8.1 80.7 L8.0 80.3 L7.9 79.8 L7.9 79.3 L7.8 78.8 L7.8 78.3 L7.8 77.8 L7.7 77.3 L7.7 76.8 L7.7 76.3 L7.8 75.8 L7.8 75.3 L7.9 74.8 L8.0 74.3 L8.1 73.7 L8.2 73.2 L8.3 72.7 L8.5 72.2 L8.7 71.7 L8.8 71.1 L9.0 70.6 L9.2 70.1 L9.5 69.6 L9.7 69.1 L9.9 68.6 L10.1 68.1 L10.4 67.6 L10.6 67.1 L10.9 66.6 L11.1 66.1 L11.3 65.6 L11.6 65.2 L11.8 64.7 L12.1 64.2 L12.3 63.8 L12.5 63.3 L12.7 62.9 L12.9 62.4 L13.1 62.0 L13.3 61.6 L13.5 61.1 L13.7 60.7 L13.9 60.3 L14.1 59.8 L14.3 59.4 L14.6 59.0 L14.8 58.6 L15.0 58.2 L15.2 57.8 L15.4 57.4 L15.6 57.0 L15.8 56.6 L16.0 56.2 L16.3 55.9 L16.5 55.5 L16.7 55.1 L16.9 54.8 L17.0 54.4 L17.2 54.0 L17.4 53.7 L17.6 53.3 L17.8 52.9 L17.9 52.6 L18.1 52.2 L18.2 51.8 L18.4 51.5 L18.5 51.1 L18.7 50.7 L18.8 50.3 L18.9 49.9 L19.0 49.5 L19.1 49.0 L19.2 48.6 L19.3 48.1 L19.4 47.6 L19.5 47.1 L19.5 46.6 L19.6 46.1 L19.7 45.6 L19.7 45.0 L19.8 44.5 L19.8 44.0 L19.9 43.4 L19.9 42.8 L20.0 42.3 L20.0 41.7 L20.0 41.1 L20.1 40.6 L20.1 40.0 L20.1 39.5 L20.1 38.9 L20.2 38.4 L20.2 37.8 L20.2 37.3 L20.2 36.8 L20.3 36.2 L20.3 35.7 L20.3 35.2 L20.3 34.8 L20.3 34.3 L20.4 33.9 L20.4 33.4 L20.4 33.0 L20.4 32.7 L20.4 32.3 L20.4 32.0 L20.4 31.7 L20.5 31.3 L20.5 31.0 L20.5 30.8 L20.5 30.5 L20.5 30.2 L20.5 29.9 L20.5 29.7 L20.4 29.4 L20.4 29.1 L20.4 28.9 L20.4 28.6 L20.4 28.3 L20.4 28.0 L20.4 27.7 L20.4 27.4 L20.4 27.1 L20.4 26.8 L20.4 26.4 L20.4 26.0 L20.4 25.7 L20.4 25.3 L20.4 24.9 L20.4 24.4 L20.4 24.0 L20.4 23.5 L20.4 23.0 L20.4 22.5 L20.4 22.0 L20.4 21.4 L20.4 20.9 L20.4 20.3 L20.4 19.7 L20.4 19.1 L20.4 18.5 L20.4 17.9 L20.4 17.3 L20.4 16.7 L20.4 16.1 L20.4 15.5 L20.4 14.8 L20.4 14.2 L20.4 13.5 L20.4 12.9 L20.4 12.3 L20.4 11.6 L20.4 11.0 L20.4 10.3 L20.4 9.7 L20.4 9.0 L20.4 8.4 L20.4 7.8 L20.4 7.2 L20.4 6.6 L20.4 6.0" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M32.8 101.7 L32.8 101.4 L32.8 101.1 L32.8 100.7 L32.8 100.4 L32.8 100.0 L32.8 99.5 L32.8 99.0 L32.7 98.5 L32.7 97.9 L32.7 97.3 L32.7 96.7 L32.7 96.0 L32.7 95.4 L32.7 94.7 L32.7 93.9 L32.7 93.2 L32.7 92.4 L32.7 91.7 L32.7 90.9 L32.7 90.1 L32.7 89.3 L32.7 88.4 L32.7 87.6 L32.7 86.8 L32.7 86.0 L32.7 85.1 L32.7 84.3 L32.7 83.5 L32.7 82.7 L32.7 81.9 L32.7 81.1 L32.7 80.3 L32.7 79.5" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M28.8 101.7 L28.8 101.4 L28.8 101.1 L28.8 100.7 L28.8 100.4 L28.8 100.0 L28.8 99.5 L28.8 99.0 L28.7 98.5 L28.7 97.9 L28.7 97.3 L28.7 96.7 L28.7 96.1 L28.7 95.4 L28.7 94.7 L28.7 94.0 L28.7 93.2 L28.7 92.5 L28.7 91.7 L28.7 90.9 L28.7 90.1 L28.7 89.3 L28.7 88.5 L28.7 87.6 L28.7 86.8 L28.7 86.0 L28.7 85.1 L28.7 84.3 L28.7 83.5 L28.7 82.6 L28.7 81.8 L28.7 81.0 L28.7 80.2 L28.7 79.4" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M32.8 102.7 L32.8 102.6 L32.8 102.5 L32.8 102.3 L32.8 102.1 L32.8 101.9 L32.8 101.7 L32.8 101.4 L32.8 101.1 L32.8 100.7 L32.8 100.4 L32.8 100.0 L32.8 99.5 L32.8 99.0 L32.7 98.5 L32.7 97.9 L32.7 97.3 L32.7 96.7 L32.7 96.0 L32.7 95.4 L32.7 94.7 L32.7 93.9 L32.7 93.2 L32.7 92.4 L32.7 91.7 L32.7 90.9 L32.7 90.1 L32.7 89.3 L32.7 88.4 L32.7 87.6 L32.7 86.8 L32.7 86.0 L32.7 85.1 L32.7 84.3 L32.7 83.5 L32.7 82.7 L32.7 81.9 L32.7 81.1 L32.7 80.3 L32.7 79.5 L32.7 78.8 L32.8 78.0 L32.8 77.3 L32.8 76.5 L32.8 75.8 L32.8 75.1" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M28.8 102.7 L28.8 102.6 L28.8 102.5 L28.8 102.3 L28.8 102.1 L28.8 101.9 L28.8 101.7 L28.8 101.4 L28.8 101.1 L28.8 100.7 L28.8 100.4 L28.8 100.0 L28.8 99.5 L28.8 99.0 L28.7 98.5 L28.7 97.9 L28.7 97.3 L28.7 96.7 L28.7 96.1 L28.7 95.4 L28.7 94.7 L28.7 94.0 L28.7 93.2 L28.7 92.5 L28.7 91.7 L28.7 90.9 L28.7 90.1 L28.7 89.3 L28.7 88.5 L28.7 87.6 L28.7 86.8 L28.7 86.0 L28.7 85.1 L28.7 84.3 L28.7 83.5 L28.7 82.6 L28.7 81.8 L28.7 81.0 L28.7 80.2 L28.7 79.4 L28.7 78.6 L28.8 77.9 L28.8 77.2 L28.8 76.4 L28.8 75.7 L28.9 74.9" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M30.6 20.6 L30.2 20.4 L29.7 20.2 L29.3 20.0 L28.8 19.8 L28.3 19.6 L27.8 19.5 L27.3 19.3 L26.8 19.2 L26.3 19.1 L25.7 19.0 L25.2 18.9 L24.7 18.8 L24.2 18.7 L23.7 18.7 L23.1 18.7 L22.6 18.6 L22.1 18.6 L21.6 18.7 L21.1 18.7 L20.6 18.7 L20.1 18.8 L19.6 18.9 L19.1 19.0 L18.6 19.1 L18.1 19.3 L17.6 19.5 L17.1 19.7 L16.6 19.9 L16.1 20.1 L15.6 20.3 L15.1 20.6 L14.6 20.9 L14.1 21.2" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M28.9 24.2 L28.5 24.0 L28.2 23.9 L27.8 23.7 L27.4 23.6 L27.0 23.4 L26.6 23.3 L26.2 23.2 L25.8 23.1 L25.4 23.0 L25.0 22.9 L24.6 22.8 L24.2 22.8 L23.7 22.7 L23.3 22.7 L22.9 22.7 L22.5 22.6 L22.1 22.6 L21.8 22.7 L21.4 22.7 L21.0 22.7 L20.7 22.8 L20.4 22.8 L20.0 22.9 L19.7 23.0 L19.4 23.1 L19.0 23.2 L18.6 23.4 L18.2 23.5 L17.8 23.7 L17.4 23.9 L17.0 24.1 L16.6 24.4 L16.2 24.6" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M33.1 22.2 L32.7 21.9 L32.4 21.6 L31.9 21.3 L31.5 21.1 L31.1 20.8 L30.6 20.6 L30.2 20.4 L29.7 20.2 L29.3 20.0 L28.8 19.8 L28.3 19.6 L27.8 19.5 L27.3 19.3 L26.8 19.2 L26.3 19.1 L25.7 19.0 L25.2 18.9 L24.7 18.8 L24.2 18.7 L23.7 18.7 L23.1 18.7 L22.6 18.6 L22.1 18.6 L21.6 18.7 L21.1 18.7 L20.6 18.7 L20.1 18.8 L19.6 18.9 L19.1 19.0 L18.6 19.1 L18.1 19.3 L17.6 19.5 L17.1 19.7 L16.6 19.9 L16.1 20.1 L15.6 20.3 L15.1 20.6 L14.6 20.9 L14.1 21.2 L13.6 21.5 L13.1 21.8 L12.6 22.1 L12.2 22.4 L11.7 22.8 L11.2 23.2" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M30.6 25.3 L30.4 25.1 L30.1 24.9 L29.8 24.7 L29.5 24.5 L29.2 24.4 L28.9 24.2 L28.5 24.0 L28.2 23.9 L27.8 23.7 L27.4 23.6 L27.0 23.4 L26.6 23.3 L26.2 23.2 L25.8 23.1 L25.4 23.0 L25.0 22.9 L24.6 22.8 L24.2 22.8 L23.7 22.7 L23.3 22.7 L22.9 22.7 L22.5 22.6 L22.1 22.6 L21.8 22.7 L21.4 22.7 L21.0 22.7 L20.7 22.8 L20.4 22.8 L20.0 22.9 L19.7 23.0 L19.4 23.1 L19.0 23.2 L18.6 23.4 L18.2 23.5 L17.8 23.7 L17.4 23.9 L17.0 24.1 L16.6 24.4 L16.2 24.6 L15.7 24.9 L15.3 25.1 L14.9 25.4 L14.5 25.7 L14.1 26.0 L13.7 26.3" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M22.0 53.7 L22.6 54.0 L23.2 54.4 L23.8 54.7 L24.3 55.0 L24.8 55.4 L25.4 55.7 L25.9 56.0 L26.4 56.3 L26.9 56.6 L27.4 57.0 L27.9 57.3 L28.5 57.6 L29.0 57.9 L29.5 58.2 L30.1 58.5 L30.6 58.7 L31.1 59.0 L31.7 59.2 L32.2 59.5 L32.7 59.7 L33.2 59.9 L33.7 60.2 L34.2 60.4 L34.7 60.6 L35.2 60.9 L35.7 61.1 L36.1 61.3 L36.6 61.6 L37.0 61.8 L37.4 62.0 L37.8 62.3 L38.2 62.5 L38.6 62.7" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M24.1 50.3 L24.7 50.6 L25.3 50.9 L25.8 51.3 L26.4 51.6 L26.9 52.0 L27.5 52.3 L28.0 52.6 L28.5 52.9 L29.0 53.3 L29.5 53.6 L30.0 53.8 L30.4 54.1 L30.9 54.4 L31.4 54.6 L31.9 54.9 L32.4 55.1 L32.9 55.4 L33.4 55.6 L33.9 55.8 L34.4 56.1 L34.9 56.3 L35.4 56.5 L35.9 56.8 L36.4 57.0 L36.9 57.3 L37.4 57.5 L37.9 57.8 L38.4 58.0 L38.9 58.3 L39.4 58.5 L39.9 58.8 L40.4 59.1 L40.8 59.4" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M18.6 51.5 L19.1 51.9 L19.7 52.3 L20.3 52.6 L20.9 53.0 L21.5 53.3 L22.0 53.7 L22.6 54.0 L23.2 54.4 L23.8 54.7 L24.3 55.0 L24.8 55.4 L25.4 55.7 L25.9 56.0 L26.4 56.3 L26.9 56.6 L27.4 57.0 L27.9 57.3 L28.5 57.6 L29.0 57.9 L29.5 58.2 L30.1 58.5 L30.6 58.7 L31.1 59.0 L31.7 59.2 L32.2 59.5 L32.7 59.7 L33.2 59.9 L33.7 60.2 L34.2 60.4 L34.7 60.6 L35.2 60.9 L35.7 61.1 L36.1 61.3 L36.6 61.6 L37.0 61.8 L37.4 62.0 L37.8 62.3 L38.2 62.5 L38.6 62.7 L39.0 63.0 L39.3 63.2 L39.6 63.5 L39.9 63.8 L40.2 64.0 L40.5 64.3" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M20.7 48.2 L21.3 48.5 L21.8 48.9 L22.4 49.2 L23.0 49.6 L23.6 49.9 L24.1 50.3 L24.7 50.6 L25.3 50.9 L25.8 51.3 L26.4 51.6 L26.9 52.0 L27.5 52.3 L28.0 52.6 L28.5 52.9 L29.0 53.3 L29.5 53.6 L30.0 53.8 L30.4 54.1 L30.9 54.4 L31.4 54.6 L31.9 54.9 L32.4 55.1 L32.9 55.4 L33.4 55.6 L33.9 55.8 L34.4 56.1 L34.9 56.3 L35.4 56.5 L35.9 56.8 L36.4 57.0 L36.9 57.3 L37.4 57.5 L37.9 57.8 L38.4 58.0 L38.9 58.3 L39.4 58.5 L39.9 58.8 L40.4 59.1 L40.8 59.4 L41.3 59.7 L41.7 60.1 L42.2 60.4 L42.6 60.8 L43.0 61.2 L43.4 61.6" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M19.5 58.2 L19.8 57.8 L20.0 57.4 L20.2 57.0 L20.4 56.6 L20.6 56.3 L20.8 55.9 L21.0 55.5 L21.2 55.0 L21.4 54.6 L21.6 54.2 L21.8 53.8 L22.0 53.3 L22.1 52.9 L22.3 52.4 L22.5 51.9 L22.6 51.4 L22.8 50.9 L22.9 50.4 L23.0 49.9 L23.1 49.4 L23.2 48.9 L23.3 48.3 L23.4 47.8 L23.5 47.2 L23.6 46.6 L23.7 46.0 L23.7 45.5 L23.8 44.9 L23.8 44.3 L23.9 43.7 L23.9 43.1 L24.0 42.5 L24.0 42.0" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M16.0 56.2 L16.3 55.9 L16.5 55.5 L16.7 55.1 L16.9 54.8 L17.0 54.4 L17.2 54.0 L17.4 53.7 L17.6 53.3 L17.8 52.9 L17.9 52.6 L18.1 52.2 L18.2 51.8 L18.4 51.5 L18.5 51.1 L18.7 50.7 L18.8 50.3 L18.9 49.9 L19.0 49.5 L19.1 49.0 L19.2 48.6 L19.3 48.1 L19.4 47.6 L19.5 47.1 L19.5 46.6 L19.6 46.1 L19.7 45.6 L19.7 45.0 L19.8 44.5 L19.8 44.0 L19.9 43.4 L19.9 42.8 L20.0 42.3 L20.0 41.7" stroke="var(--halo,#fff)" stroke-width="5.80000000000001" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M18.3 60.4 L18.5 60.0 L18.7 59.7 L18.9 59.3 L19.1 58.9 L19.3 58.6 L19.5 58.2 L19.8 57.8 L20.0 57.4 L20.2 57.0 L20.4 56.6 L20.6 56.3 L20.8 55.9 L21.0 55.5 L21.2 55.0 L21.4 54.6 L21.6 54.2 L21.8 53.8 L22.0 53.3 L22.1 52.9 L22.3 52.4 L22.5 51.9 L22.6 51.4 L22.8 50.9 L22.9 50.4 L23.0 49.9 L23.1 49.4 L23.2 48.9 L23.3 48.3 L23.4 47.8 L23.5 47.2 L23.6 46.6 L23.7 46.0 L23.7 45.5 L23.8 44.9 L23.8 44.3 L23.9 43.7 L23.9 43.1 L24.0 42.5 L24.0 42.0 L24.0 41.4 L24.1 40.8 L24.1 40.2 L24.1 39.6 L24.1 39.1 L24.2 38.5" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/><path d="M14.8 58.6 L15.0 58.2 L15.2 57.8 L15.4 57.4 L15.6 57.0 L15.8 56.6 L16.0 56.2 L16.3 55.9 L16.5 55.5 L16.7 55.1 L16.9 54.8 L17.0 54.4 L17.2 54.0 L17.4 53.7 L17.6 53.3 L17.8 52.9 L17.9 52.6 L18.1 52.2 L18.2 51.8 L18.4 51.5 L18.5 51.1 L18.7 50.7 L18.8 50.3 L18.9 49.9 L19.0 49.5 L19.1 49.0 L19.2 48.6 L19.3 48.1 L19.4 47.6 L19.5 47.1 L19.5 46.6 L19.6 46.1 L19.7 45.6 L19.7 45.0 L19.8 44.5 L19.8 44.0 L19.9 43.4 L19.9 42.8 L20.0 42.3 L20.0 41.7 L20.0 41.1 L20.1 40.6 L20.1 40.0 L20.1 39.5 L20.1 38.9 L20.2 38.4" stroke="#ff6b5e" stroke-width="3.6" fill="none" stroke-linecap="butt" stroke-linejoin="round"/></symbol>
+<symbol id="main" viewBox="0 0 40 50">
+  <g fill="currentColor" stroke="var(--d,#fff)" stroke-width="1.4">
+    <!-- pouce -->
+    <!-- index, majeur, annulaire, auriculaire -->
+    <rect x="9.5" y="7" width="6.6" height="22" rx="3.3"/>
+    <rect x="16.3" y="3.5" width="6.6" height="25" rx="3.3"/>
+    <rect x="23.1" y="5.5" width="6.6" height="23" rx="3.3"/>
+    <rect x="29.9" y="11" width="6" height="18" rx="3"/>
+  </g>
+  <!-- paume et poignet, dessinés par-dessus le bas des doigts -->
+  <path d="M14 37 C11 34 8.5 30.5 6 26.5" fill="none" stroke="currentColor" stroke-width="6.6" stroke-linecap="round"/>
+  <path d="M10 26 Q10 23.5 12.5 23.5 H33.5 Q36 23.5 36 26 V33 C36 39 32.5 42 28.5 43.5 V47.5 H15.5 V43.5 C11.5 42 10 38.5 10 33 Z" fill="currentColor"/>
+  <!-- strap sur l'annulaire : deux tours de bande -->
+  <g>
+    <rect x="22.4" y="10.5" width="8" height="3.6" rx="0.8" transform="rotate(-6 26.4 12.3)" fill="var(--tape,#fff)" stroke="currentColor" stroke-width=".7"/>
+    <rect x="22.4" y="16.6" width="8" height="3.6" rx="0.8" transform="rotate(5 26.4 18.4)" fill="var(--tape,#fff)" stroke="currentColor" stroke-width=".7"/>
+    <path d="M24 11.6 l1.6 2 M26.3 11.3 l1.6 2 M28.6 11 l1.4 2 M24 17.2 l1.6 2 M26.3 17.4 l1.6 2 M28.6 17.6 l1.4 2" stroke="currentColor" stroke-width=".45" opacity=".55"/>
+  </g>
+</symbol>
+</defs></svg>
+
+<div class="wrap">
+  <header class="top">
+    <div class="toplinks" data-vue="adherents"><a class="nav" href="./"><svg class="ico" width="13" height="24" aria-hidden="true"><use href="#huit"/></svg>Je suis référent</a></div>
+    <div class="toplinks" data-vue="referents"><a class="nav" href="./?vue=adherents"><svg class="ico" width="16" height="20" aria-hidden="true"><use href="#main"/></svg>Je ne suis pas référent : retour à la page adhérents</a></div>
+    <div class="hero">
+      <img class="logo" alt="Logo du 19Escalade" width="84" height="84" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAxlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ1IDc5LjE2MzQ5OSwgMjAxOC8wOC8xMy0xNjo0MDoyMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RDBEQUE0N0Q0QkE0MTFGMUJFODhFRUVFOEZBRkU4MjMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RDBEQUE0N0M0QkE0MTFGMUJFODhFRUVFOEZBRkU4MjMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgSWxsdXN0cmF0b3IgMTAiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo1RjA0MjVBODRBRDcxMUYxODhDMkU3MUZGNTAxM0E1NiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo1RjA0MjVBOTRBRDcxMUYxODhDMkU3MUZGNTAxM0E1NiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PhsqoSMAACOKSURBVHja7F0HWJZVG7752MMFigri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">
+      <h1>Planning des référents du <span class="club">19Escalade</span></h1>
+      <p class="lede" id="lede">Inscris-toi sur un créneau et indique tes horaires si tu ne restes pas jusqu'au bout. La corde montre les heures assurées, le pointillé ce qui reste à prendre.</p>
+    </div>
+    <div class="weekbar">
+      <button class="nav" id="prev" aria-label="Semaine précédente">‹</button>
+      <div class="label" id="weeklabel">Semaine</div>
+      <button class="nav" id="today">Cette semaine</button>
+      <button class="nav" id="next" aria-label="Semaine suivante">›</button>
+    </div>
+    <div class="notice" id="status" hidden></div>
+  </header>
+  <main id="days" class="wrap" style="gap:22px"></main>
+</div>
+
+<script>
+(function () {
+  // Créneaux habituels au gymnase Ladoumègue (hors vacances scolaires). 0 = lundi.
+  // Adresse adhérents : même page avec ?vue=adherents, en lecture seule.
+  const ADH = new URLSearchParams(location.search).get("vue") === "adherents";
+  document.querySelectorAll(".toplinks[data-vue]").forEach(n => { if (n.dataset.vue !== (ADH ? "adherents" : "referents")) n.remove(); });
+
+  // Données : Google Sheet via l'application Apps Script (lecture en GET, écritures en POST text/plain, sans pré-vérification CORS).
+  const API_URL = "https://script.google.com/macros/s/AKfycbxre3-1nWjLnsJAnH007a_h36mdSMiO9Z8K47W3ZWQmczjHYyc660uNY8joWYIojXHX/exec";
+  // Même enchaînement que les appels Apps Script d’origine : serveur().withSuccessHandler(f).withFailureHandler(g).action(...)
+  function serveur() {
+    let succes = () => {}, echec = () => {};
+    const appel = (action, data) => {
+      const req = action === "lire"
+        ? fetch(API_URL + "?api=lire", { redirect: "follow", cache: "no-store" })
+        : fetch(API_URL, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action, data }) });
+      req.then(rep => { if (!rep.ok) throw new Error("HTTP " + rep.status); return rep.json(); }, () => null)
+        .then(rep => {
+          if (rep === null) return echec({});  // réseau : message par défaut de la page
+          if (rep && rep.ok === false) return echec({ message: rep.erreur });
+          succes(action === "lire" ? rep : rep.data);
+        })
+        .catch(() => echec({}));
+    };
+    const api = {
+      withSuccessHandler(f) { succes = f; return api; },
+      withFailureHandler(f) { echec = f; return api; },
+      getInscriptions: () => appel("lire"),
+      ajouter: insc => appel("ajouter", insc),
+      retirer: id => appel("retirer", id),
+      grimper: (date, slot, nom) => appel("grimper", { date, slot, nom }),
+      retirerEnvie: id => appel("retirerGrimpeur", id)
+    };
+    return api;
+  }
+  if (ADH) document.getElementById("lede").textContent = "Pas de référent, pas de grimpe. Viens quand le créneau est assuré.";
+  const PLACE = "Ladoumègue";
+  const TEMPLATE = {
+    1: [{ id: "midi", start: "12:00", end: "13:30" }, { id: "soir", start: "19:00", end: "22:30" }],
+    2: [{ id: "midi", start: "12:00", end: "14:00" }],
+    3: [{ id: "soir", start: "17:30", end: "20:00" }],
+    4: [{ id: "midi", start: "12:00", end: "13:30" }, { id: "soir", start: "18:00", end: "22:30" }],
+    5: [{ id: "aprem", start: "13:00", end: "20:00" }],
+    6: [{ id: "jour", start: "08:00", end: "18:00" }]
+  };
+  // Fermeture exceptionnelle (travaux) : Ladoumègue fermé, sorties autonomes dans des salles privées.
+  const CLOSURES = [{ from: "2026-10-19", to: "2026-11-01", label: "Vacances de la Toussaint : Ladoumègue est fermé." }];
+  // Vacances scolaires : créneaux habituels, sauf samedi jusqu'à 17h et pas de dimanche.
+  const HOLIDAYS = [
+    { from: "2026-12-19", to: "2027-01-03", label: "Vacances de Noël" },
+    { from: "2027-02-06", to: "2027-02-21", label: "Vacances d'hiver" },
+    { from: "2027-04-03", to: "2027-04-18", label: "Vacances de printemps" }
+  ];
+  const OUTINGS = {
+    "2026-10-20": [{ id: "auto", start: "19:00", end: "22:30", place: "Arkose Pantin", from: true }],
+    "2026-10-24": [{ id: "auto", start: "14:00", end: "18:00", place: "Climb'Up Aubervilliers" }],
+    "2026-10-27": [{ id: "auto", start: "19:00", end: "22:30", place: "Climb'Up Aubervilliers", from: true }],
+    "2026-10-31": [{ id: "auto", start: "14:00", end: "18:00", place: "Arkose Pantin" }]
+  };
+  const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+  const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+  const pad = n => String(n).padStart(2, "0");
+  const iso = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const parseIso = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const mondayOf = d => addDays(new Date(d.getFullYear(), d.getMonth(), d.getDate()), -((d.getDay() + 6) % 7));
+  const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+  const fmt = t => { const [h, m] = t.split(":"); return Number(h) + "h" + (m === "00" ? "" : m); };
+  const fmtMin = x => fmt(pad(Math.floor(x / 60)) + ":" + pad(x % 60));
+
+  function closureFor(dateIso) {
+    return CLOSURES.find(c => dateIso >= c.from && dateIso <= c.to);
+  }
+  function holidayFor(dateIso) {
+    return HOLIDAYS.find(c => dateIso >= c.from && dateIso <= c.to);
+  }
+  function slotsFor(date) {
+    const key = iso(date), wd = (date.getDay() + 6) % 7;
+    if (closureFor(key)) return (OUTINGS[key] || []).map(s => ({ ...s, auto: true }));
+    if (holidayFor(key) && wd === 6) return [];
+    return (TEMPLATE[wd] || []).map(s => ({ ...s, place: PLACE, ...(holidayFor(key) && wd === 5 ? { end: "17:00" } : {}) }));
+  }
+
+  // Couverture : fusionne les intervalles des inscrits et renvoie segments couverts + trous.
+  function coverage(slot, entries) {
+    const s = toMin(slot.start), e = toMin(slot.end);
+    const iv = entries.map(x => [Math.max(s, toMin(x.debut)), Math.min(e, toMin(x.fin))])
+      .filter(([a, b]) => b > a).sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    for (const [a, b] of iv) {
+      const last = merged[merged.length - 1];
+      if (last && a <= last[1]) last[1] = Math.max(last[1], b); else merged.push([a, b]);
+    }
+    const gaps = []; let cur = s;
+    for (const [a, b] of merged) { if (a > cur) gaps.push([cur, a]); cur = Math.max(cur, b); }
+    if (cur < e) gaps.push([cur, e]);
+    return { s, e, merged, gaps };
+  }
+
+  let week = mondayOf(new Date());
+  let entries = [];          // toutes les inscriptions {id, date, slot, nom, debut, fin}
+  let db = null, canWrite = !ADH, loaded = false, nudgeKey = null;
+  let openForm = null;       // clé "date|slot" du formulaire ouvert
+  let confirmId = null;      // inscription en attente de confirmation de retrait
+  let formError = "";
+
+  const $ = id => document.getElementById(id);
+  const icon = (id, w, h, cls) => { const NS = "http://www.w3.org/2000/svg"; const svg = document.createElementNS(NS, "svg"); svg.setAttribute("width", w); svg.setAttribute("height", h); svg.setAttribute("class", "ico" + (cls ? " " + cls : "")); svg.setAttribute("aria-hidden", "true"); const u = document.createElementNS(NS, "use"); u.setAttribute("href", "#" + id); svg.appendChild(u); return svg; };
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  let savedName = "";
+  try { savedName = localStorage.getItem("referent-nom") || ""; } catch (e) {}
+
+  function render() {
+    const sunday = addDays(week, 6);
+    $("weeklabel").textContent = "Semaine du " + week.getDate() + (week.getMonth() !== sunday.getMonth() ? " " + MONTHS[week.getMonth()] : "") +
+      " au " + sunday.getDate() + " " + MONTHS[sunday.getMonth()];
+    const todayIso = iso(new Date());
+    const closure = closureFor(iso(week)) || closureFor(iso(sunday));
+    const main = $("days"); main.textContent = "";
+    if (closure) main.appendChild(el("div", "notice", closure.label + (ADH ? " Les sorties ci-dessous sont des créneaux autonomes." : " Les sorties ci-dessous sont des créneaux autonomes : inscris-toi si tu viens.")));
+    const holiday = !closure && (holidayFor(iso(week)) || holidayFor(iso(sunday)));
+    if (holiday) main.appendChild(el("div", "notice", holiday.label + " : horaires habituels, sauf le samedi qui s'arrête à 17h et pas de créneau le dimanche."));
+
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(week, i), dIso = iso(date), slots = slotsFor(date);
+      // Un jour sans créneau reste dans la grille ordinateur (colonne vide), mais est masqué sur téléphone.
+      const day = el("section", "day" + (slots.length ? "" : " empty-day"));
+      const h = el("h2", null, DAYS[i] + " " + date.getDate() + " " + MONTHS[date.getMonth()]);
+      if (dIso === todayIso) h.appendChild(el("span", "today", "Aujourd'hui"));
+      day.appendChild(h);
+      if (!slots.length) day.appendChild(el("p", "empty", "Pas de créneau"));
+      for (const slot of slots) {
+        const mine = entries.filter(x => x.date === dIso && x.slot === slot.id);
+        const cov = coverage(slot, mine);
+        const past = dIso < todayIso;
+        day.appendChild(renderSlot(dIso, slot, mine, cov, past));
+      }
+      main.appendChild(day);
+    }
+
+  }
+
+  function renderSlot(dIso, slot, mine, cov, past) {
+    const key = dIso + "|" + slot.id;
+    const card = el("article", "slot" + (past ? " past" : ""));
+    const head = el("div", "slot-head");
+    const meta = el("div", "slot-meta");
+    meta.appendChild(el("div", "slot-time", fmt(slot.start) + (slot.from ? "" : " – " + fmt(slot.end))));
+    meta.appendChild(el("div", "slot-place", slot.auto ? "Sortie autonome · " + slot.place + (slot.from ? " · dès " + fmt(slot.start) : "") : slot.place));
+    head.appendChild(meta);
+    let st;
+    if (slot.auto) st = el("span", "pill info", mine.length ? mine.length + " inscrit" + (mine.length > 1 ? "s" : "") : "Sortie libre");
+    else if (!cov.merged.length) {
+      // Mousqueton poire ouvert, rouge : aucun référent.
+      st = el("div", "status bad"); st.appendChild(icon("mq-ouvert", 26, 40)); st.appendChild(el("span", null, "Non assuré"));
+    } else {
+      // Mousqueton poire verrouillé, vert : au moins un référent, même sur une partie du créneau.
+      st = el("div", "status ok"); st.appendChild(icon("mq-ferme", 26, 40)); st.appendChild(el("span", null, "Assuré"));
+      // Plages couvertes, au format 19:00–22:15, une par ligne.
+      const hhmm = x => pad(Math.floor(x / 60)) + ":" + pad(x % 60);
+      cov.merged.forEach(([a, b]) => st.appendChild(el("small", null, hhmm(a) + "–" + hhmm(b))));
+    }
+    head.appendChild(st);
+    card.appendChild(head);
+
+    if (!slot.auto) {
+      // Corde : tronçons tendus pour les heures assurées, pointillé (le mou) pour le reste.
+      const bar = el("div", "ropewrap"); const span = cov.e - cov.s;
+      bar.setAttribute("role", "img");
+      bar.setAttribute("aria-label", !cov.merged.length ? "Aucune heure assurée" : cov.gaps.length ? "Reste à assurer : " + cov.gaps.map(([a, b]) => fmtMin(a) + " à " + fmtMin(b)).join(", ") : "Créneau entièrement assuré");
+      bar.appendChild(el("div", "slack"));
+      for (const [a, b] of cov.merged) {
+        const s = el("div", "rope"); s.style.left = ((a - cov.s) / span * 100) + "%"; s.style.width = ((b - a) / span * 100) + "%"; bar.appendChild(s);
+      }
+      card.appendChild(bar);
+      const ticks = el("div", "ticks"); ticks.appendChild(el("span", null, fmt(slot.start))); ticks.appendChild(el("span", null, fmt(slot.end)));
+      card.appendChild(ticks);
+    }
+
+    if (mine.length) {
+      const ul = el("ul", "people");
+      mine.slice().sort((a, b) => a.debut.localeCompare(b.debut)).forEach(x => {
+        const li = el("li", "person" + (confirmId === x.id ? " confirm" : ""));
+        li.appendChild(icon("huit", 15, 28));
+        const who = el("span", "who");
+        who.appendChild(el("span", "n", x.nom));
+        if (x.debut !== slot.start || x.fin !== slot.end) who.appendChild(el("span", "h", fmt(x.debut) + "–" + fmt(x.fin)));
+        li.appendChild(who);
+        if (db && canWrite) {
+          if (confirmId === x.id) {
+            const yes = el("button", "yes", "Retirer"); yes.type = "button"; yes.onclick = () => remove(x.id); li.appendChild(yes);
+            const no = el("button", "x", "×"); no.type = "button"; no.setAttribute("aria-label", "Annuler"); no.onclick = () => { confirmId = null; render(); }; li.appendChild(no);
+          } else {
+            const xb = el("button", "x", "×"); xb.type = "button"; xb.setAttribute("aria-label", "Retirer " + x.nom); xb.onclick = () => { confirmId = x.id; render(); }; li.appendChild(xb);
+          }
+        }
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+    } else if (!slot.auto) {
+      card.appendChild(el("p", "empty", past ? "Personne n'était inscrit." : "Aucun référent pour l'instant."));
+    }
+
+    if (!slot.auto) {
+      const list = envies.filter(x => x.date === dIso && x.slot === slot.id);
+      const n = list.length, open = n > 0 && openLists.has(key);
+      const moi = grimpeurNom ? list.find(x => cleNom(x.nom) === cleNom(grimpeurNom)) : null;
+      const want = el("div", "want");
+      if (ADH && db && !past && openClimb !== key) {
+        const btn = el("button", "climb"); btn.type = "button";
+        btn.appendChild(icon("main", 20, 25)); btn.appendChild(document.createTextNode(moi ? "Je veux grimper ✓" : "Je veux grimper !"));
+        btn.setAttribute("aria-pressed", moi ? "true" : "false");
+        btn.title = moi ? "Cliquer pour retirer " + moi.nom + " de la liste" : "Donne ton prénom pour que les référents sachent que tu viens";
+        btn.onclick = moi ? () => removeEnvie(moi.id) : () => { openClimb = key; climbError = ""; confirmId = null; render(); const g = $("g-nom"); if (g) g.focus(); };
+        want.appendChild(btn);
+      }
+      if (n || (ADH && !past)) {
+        const c = el(n ? "button" : "span", "count");
+        if (n) { c.type = "button"; c.setAttribute("aria-expanded", open ? "true" : "false"); c.title = open ? "Masquer la liste" : "Voir qui vient";
+          c.onclick = () => { if (open) openLists.delete(key); else openLists.add(key); render(); }; }
+        c.appendChild(icon("main", 16, 20)); c.lastChild.style.color = "var(--accent)";
+        c.appendChild(el("strong", null, String(n)));
+        c.appendChild(document.createTextNode(n > 1 ? " grimpeurs veulent venir" : " grimpeur veut venir"));
+        if (n) c.appendChild(el("span", "chev", open ? " ▲" : " ▼"));
+        want.appendChild(c);
+      }
+      if (want.childNodes.length) card.appendChild(want);
+      if (open) {
+        const ul = el("ul", "people climbers");
+        list.forEach(x => {
+          const li = el("li", "person" + (confirmId === x.id ? " confirm" : ""));
+          li.appendChild(icon("main", 14, 18));
+          const who = el("span", "who"); who.appendChild(el("span", "n", x.nom)); li.appendChild(who);
+          if (db && !past) {
+            if (confirmId === x.id) {
+              const yes = el("button", "yes", "Retirer"); yes.type = "button"; yes.onclick = () => removeEnvie(x.id); li.appendChild(yes);
+              const no = el("button", "x", "×"); no.type = "button"; no.setAttribute("aria-label", "Annuler"); no.onclick = () => { confirmId = null; render(); }; li.appendChild(no);
+            } else {
+              const xb = el("button", "x", "×"); xb.type = "button"; xb.setAttribute("aria-label", "Retirer " + x.nom); xb.onclick = () => { confirmId = x.id; render(); }; li.appendChild(xb);
+            }
+          }
+          ul.appendChild(li);
+        });
+        card.appendChild(ul);
+      }
+      if (openClimb === key) card.appendChild(renderClimbForm(dIso, slot));
+    }
+
+    if (nudgeKey === key) {
+      const nudge = el("p", "nudge"); nudge.setAttribute("role", "status");
+      nudge.appendChild(el("span", null, "N'hésite pas à prévenir les autres sur WhatsApp !"));
+      const close = el("button", "x", "×"); close.type = "button"; close.setAttribute("aria-label", "Fermer"); close.onclick = () => { nudgeKey = null; render(); };
+      nudge.appendChild(close); card.appendChild(nudge);
+    }
+
+    if (db && canWrite && !past) {
+      if (openForm === key) card.appendChild(renderForm(dIso, slot));
+      else {
+        const add = el("button", "add", slot.auto ? "+ Je viens" : "+ Je m'inscris"); add.type = "button";
+        add.onclick = () => { openForm = key; formError = ""; confirmId = null; render(); const n = $("f-nom"); if (n) n.focus(); };
+        card.appendChild(add);
+      }
+    }
+    return card;
+  }
+
+  function renderForm(dIso, slot) {
+    const f = el("form", "signup");
+    const ln = el("label", "name", "Prénom"); const inN = el("input"); inN.id = "f-nom"; inN.required = true; inN.maxLength = 40; inN.autocomplete = "given-name"; inN.value = savedName; ln.appendChild(inN);
+    const ld = el("label", null, "Arrivée"); const inD = el("input"); inD.id = "f-debut"; inD.type = "time"; inD.step = 900; inD.value = slot.start; inD.min = slot.start; inD.max = slot.end; ld.appendChild(inD);
+    const lf = el("label", null, "Départ"); const inF = el("input"); inF.id = "f-fin"; inF.type = "time"; inF.step = 900; inF.value = slot.end; inF.min = slot.start; inF.max = slot.end; lf.appendChild(inF);
+    f.append(ln, ld, lf);
+    const act = el("div", "actions");
+    const ok = el("button", "primary", "Inscrire"); ok.type = "submit";
+    const cancel = el("button", "ghost", "Annuler"); cancel.type = "button"; cancel.onclick = () => { openForm = null; openClimb = null; nudgeKey = null; render(); };
+    act.append(ok, cancel);
+    if (formError) act.appendChild(el("span", "err", formError));
+    else act.appendChild(el("span", "hint", "Laisse les horaires tels quels si tu fais tout le créneau."));
+    f.appendChild(act);
+    f.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      const nom = inN.value.trim(), debut = inD.value, fin = inF.value;
+      if (!nom) { formError = "Indique ton prénom."; render(); return; }
+      if (!debut || !fin || toMin(fin) <= toMin(debut)) { formError = "L'heure de départ doit être après l'heure d'arrivée."; render(); return; }
+      if (toMin(debut) < toMin(slot.start) || toMin(fin) > toMin(slot.end)) { formError = "Choisis des horaires entre " + fmt(slot.start) + " et " + fmt(slot.end) + "."; render(); return; }
+      ok.disabled = true;
+      serveur()
+        .withSuccessHandler(list => {
+          savedName = nom; try { localStorage.setItem("referent-nom", nom); } catch (e) {}
+          openForm = null; formError = "";
+          // Midi en semaine et jeudi : petit rappel pour prévenir le groupe.
+          nudgeKey = (slot.id === "midi" || parseIso(dIso).getDay() === 4) && !slot.auto ? dIso + "|" + slot.id : null;
+          setEntries(list);
+        })
+        .withFailureHandler(err => {
+          ok.disabled = false;
+          formError = (err && err.message) || "L'inscription n'a pas été enregistrée. Réessaie dans un instant.";
+          render();
+        })
+        .ajouter({ date: dIso, slot: slot.id, nom, debut, fin });
+    });
+    return f;
+  }
+
+  function renderClimbForm(dIso, slot) {
+    const f = el("form", "signup climbform");
+    const ln = el("label", "name", "Ton prénom"); const inN = el("input"); inN.id = "g-nom"; inN.required = true; inN.maxLength = 40; inN.autocomplete = "given-name"; inN.value = grimpeurNom; ln.appendChild(inN);
+    f.appendChild(ln);
+    const act = el("div", "actions");
+    const ok = el("button", "primary", "Je viens"); ok.type = "submit";
+    const cancel = el("button", "ghost", "Annuler"); cancel.type = "button"; cancel.onclick = () => { openClimb = null; climbError = ""; render(); };
+    act.append(ok, cancel);
+    act.appendChild(climbError ? el("span", "err", climbError) : el("span", "hint", "Ajoute l'initiale de ton nom si ton prénom est courant (ex. Thomas B.)."));
+    f.appendChild(act);
+    f.addEventListener("submit", ev => {
+      ev.preventDefault();
+      const nom = inN.value.trim();
+      if (!nom) { climbError = "Indique ton prénom."; render(); return; }
+      ok.disabled = true;
+      grimper(dIso, slot.id, nom, err => { climbError = (err && err.message) || "Ton prénom n'a pas été enregistré. Réessaie dans un instant."; render(); });
+    });
+    return f;
+  }
+
+  function remove(id) {
+    confirmId = null;
+    serveur()
+      .withSuccessHandler(setEntries)
+      .withFailureHandler(() => { showStatus("Le retrait n'a pas été enregistré. Réessaie dans un instant."); render(); })
+      .retirer(id);
+    render();
+  }
+
+  // « Je veux grimper ! » : chaque grimpeur donne son prénom, la liste se déroule sous le compteur.
+  let envies = [], openClimb = null, climbError = "";
+  const openLists = new Set();
+  let grimpeurNom = savedName;
+  try { grimpeurNom = localStorage.getItem("grimpeur-nom") || savedName; } catch (e) {}
+  const cleNom = n => String(n).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+
+  function grimper(dIso, slotId, nom, onError) {
+    const key = dIso + "|" + slotId;
+    serveur()
+      .withSuccessHandler(list => {
+        grimpeurNom = nom; try { localStorage.setItem("grimpeur-nom", nom); } catch (e) {}
+        openClimb = null; climbError = ""; openLists.add(key); setEntries(list);
+      })
+      .withFailureHandler(onError)
+      .grimper(dIso, slotId, nom);
+  }
+
+  function removeEnvie(id) {
+    confirmId = null;
+    serveur()
+      .withSuccessHandler(setEntries)
+      .withFailureHandler(() => { showStatus("Le retrait n'a pas été enregistré. Réessaie dans un instant."); render(); })
+      .retirerEnvie(id);
+    render();
+  }
+
+  function setEntries(data) {
+    envies = ((data && data.envies) || []).filter(x => x && typeof x.date === "string" && typeof x.slot === "string" && typeof x.nom === "string");
+    entries = ((data && data.inscriptions) || []).filter(x => x && typeof x.date === "string" && typeof x.slot === "string" && typeof x.nom === "string" &&
+      /^\d\d:\d\d$/.test(x.debut) && /^\d\d:\d\d$/.test(x.fin));
+    db = true; loaded = true; $("status").hidden = true; render();
+  }
+
+  // Recharge les inscriptions des autres toutes les minutes, sauf pendant une saisie.
+  function refresh() {
+    serveur()
+      .withSuccessHandler(list => { if (!openForm && !openClimb && !confirmId) setEntries(list); })
+      .withFailureHandler(() => { loaded = true; showStatus("Impossible de charger les inscriptions. Recharge la page."); render(); })
+      .getInscriptions();
+  }
+
+  function showStatus(msg) { const s = $("status"); s.textContent = msg; s.hidden = false; }
+
+  $("prev").onclick = () => { week = addDays(week, -7); openForm = null; openClimb = null; nudgeKey = null; render(); };
+  $("next").onclick = () => { week = addDays(week, 7); openForm = null; openClimb = null; nudgeKey = null; render(); };
+  $("today").onclick = () => { week = mondayOf(new Date()); openForm = null; openClimb = null; nudgeKey = null; render(); };
+
+  render();
+
+  refresh();
+  setInterval(() => { if (!document.hidden) refresh(); }, 60000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+})();
+</script>
+</body>
+</html>
